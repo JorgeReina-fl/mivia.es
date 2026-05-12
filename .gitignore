@@ -39,3 +39,40 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Env files
+.env
+.env.local
+.env.production
+.env.development
+
+# Docker volumes
+postgres-data/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Next.js
+.next/
+out/
+
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+

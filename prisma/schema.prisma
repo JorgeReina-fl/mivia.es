@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Business {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  phone       String
+  whatsappId  String?
+  status           String   @default("pending")  // pending, trial, active, suspended
+  activationCode   String?
+  trialEndsAt      DateTime
+  createdAt   DateTime @default(now())
+  profile     Profile?
+  subscription Subscription?
+  updates     ProfileUpdate[]
+}
+
+model Profile {
+  id            String   @id @default(cuid())
+  businessId    String   @unique
+  name          String
+  city          String
+  services      Json
+  trustReason   String
+  contactPhone  String
+  images        String[]
+  generatedHtml String?
+  content       Json?
+  backupContent    Json?
+  seoTitle      String?
+  seoDesc       String?
+  template      String   @default("trades")
+  vibe             String   @default("modern")
+  business      Business @relation(fields: [businessId], references: [id])
+}
+
+model Subscription {
+  id                   String    @id @default(cuid())
+  businessId           String    @unique
+  stripeCustomerId     String
+  stripeSubscriptionId String?
+  ibanLast4            String?
+  status               String
+  currentPeriodEnd     DateTime?
+  business             Business  @relation(fields: [businessId], references: [id])
+}
+
+model ProfileUpdate {
+  id         String   @id @default(cuid())
+  businessId String
+  rawMessage String
+  type       String
+  processed  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  business   Business @relation(fields: [businessId], references: [id])
+}

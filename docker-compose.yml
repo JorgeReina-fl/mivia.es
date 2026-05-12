@@ -1,0 +1,44 @@
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: mivia-postgres
+    environment:
+      POSTGRES_USER: mivia
+      POSTGRES_PASSWORD: mivia2024secure
+      POSTGRES_DB: mivia
+    volumes:
+      - mivia_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - mivia-network
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: mivia-app
+    environment:
+      DATABASE_URL: postgresql://mivia:mivia2024secure@postgres-db:5432/mivia
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_WHATSAPP_FROM: ${TWILIO_WHATSAPP_FROM}
+      NEXT_PUBLIC_BASE_DOMAIN: ${NEXT_PUBLIC_BASE_DOMAIN}
+    ports:
+      - "3001:3000"
+    depends_on:
+      - postgres-db
+    networks:
+      - mivia-network
+    restart: unless-stopped
+
+volumes:
+  mivia_postgres_data:
+
+networks:
+  mivia-network:
+    driver: bridge
