@@ -3,7 +3,9 @@ import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { GoogleGenerativeAI, SchemaType, type Schema } from '@google/generative-ai'
 import { checkRateLimit, getClientIp, rateLimitHeaders, initCleanup } from '@/lib/rate-limit'
-
+import { nanoid } from 'nanoid'
+import { portfolioCreateSchema } from '@/lib/zod-schemas'
+import { normalizeE164 } from '@/lib/phone'
 export const dynamic = 'force-dynamic'
 
 // ── Gemini setup ────────────────────────────────────────────────────────────
@@ -132,7 +134,12 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body: CreatePortfolioBody = await req.json()
+    const body = await req.json()
+    const parsed = portfolioCreateSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Validación fallida', details: parsed.error.format() }, { status: 400 })
+    }
+
     const {
       businessId,
       fullName,
@@ -144,19 +151,25 @@ export async function POST(req: NextRequest) {
       projects = [],
       location,
       email,
+      phone,
       website,
       socialLinks = {},
       template = 'modern',
       legalAcceptedAt,
-    } = body
+    } = parsed.data
 
     const resolvedProfession = profession || title || ''
 
-    if (!fullName || !resolvedProfession) {
+    if (!resolvedProfession) {
       return NextResponse.json(
-        { error: 'Campos obligatorios: fullName, profession' },
+        { error: 'Campo obligatorio: profession (o title)' },
         { status: 400 }
       )
+    }
+
+    const normalizedPhone = normalizeE164(phone)
+    if (!normalizedPhone) {
+      return NextResponse.json({ error: 'Teléfono inválido. Usa formato internacional, ej: +34600123456' }, { status: 400 })
     }
 
     // ── Flow A: existing business ──────────────────────────────────────────
@@ -177,7 +190,7 @@ export async function POST(req: NextRequest) {
         headline: resolvedProfession,
         summary: bio,
         experience,
-        projects: projects.map((p, i) => ({
+        projects: projects.map((p: ProjectInput, i: number) => ({
           id: `proj-${i}`,
           title: p.title,
           description: p.description,
@@ -227,7 +240,7 @@ export async function POST(req: NextRequest) {
       headline: resolvedProfession,
       summary:  resolvedBio,
       experience,
-      projects: projects.map((p, i) => ({
+      projects: projects.map((p: ProjectInput, i: number) => ({
         id: `proj-${i}`,
         title: p.title,
         description: p.description,
@@ -240,41 +253,52 @@ export async function POST(req: NextRequest) {
     const content = JSON.parse(JSON.stringify(contentRaw)) as Prisma.InputJsonValue
 
     const base = slugify(fullName)
-    const suffix = Date.now().toString().slice(-4)
-    let username = `${base}-${suffix}`
-
-    // Ensure uniqueness
-    const taken = await prisma.business.findUnique({ where: { username } })
-    if (taken) username = `${base}-${Date.now().toString().slice(-6)}`
-
     const activationCode = randomCode()
     const trialEndsAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
 
-    const business = await prisma.business.create({
-      data: {
-        username,
-        phone: '',
-        type: 'PORTFOLIO',
-        status: 'pending',
-        activationCode,
-        trialEndsAt,
-        legalAcceptedAt: legalAcceptedAt ? new Date(legalAcceptedAt) : null,
-        portfolio: {
-          create: {
-            name: fullName,
-            profession: resolvedProfession,
-            bio: resolvedBio,
-            location: location ?? null,
-            email: email ?? null,
-            website: website ?? null,
-            socialLinks,
-            skills: resolvedSkills,
-            content,
-            template,
+    // Retry loop con nanoid para colisiones de username
+    let business = null
+    let attempts = 0
+    const maxAttempts = 5
+
+    while (attempts < maxAttempts && !business) {
+      const username = attempts === 0 ? base : `${base}-${nanoid(6)}`
+
+      try {
+        business = await prisma.business.create({
+          data: {
+            username,
+            phone: normalizedPhone,
+            type: 'PORTFOLIO',
+            status: 'pending',
+            activationCode,
+            trialEndsAt,
+            legalAcceptedAt: new Date(legalAcceptedAt),
+            geminiDraft: {
+              create: {
+                status: 'PENDING',
+                payload: {
+                  type: 'PORTFOLIO',
+                  originalInput: { fullName, profession: resolvedProfession, location, bio: resolvedBio, template },
+                  geminiOutput: content
+                }
+              }
+            }
           },
-        },
-      },
-    })
+        })
+      } catch (error: unknown) {
+        if (typeof error === 'object' && error !== null && (error as { code?: string }).code === 'P2002' && attempts < maxAttempts - 1) {
+          attempts++
+          console.warn(`[Username collision] ${username} exists, retry ${attempts}/${maxAttempts}`)
+          continue
+        }
+        throw error
+      }
+    }
+
+    if (!business) {
+      return NextResponse.json({ error: 'No se pudo generar un username único' }, { status: 500 })
+    }
 
     const portfolio = await prisma.portfolio.findUnique({ where: { businessId: business.id } })
 
@@ -282,9 +306,10 @@ export async function POST(req: NextRequest) {
       success: true,
       portfolioId: portfolio?.id ?? null,
       businessId: business.id,
-      username,
-      activationCode,
-      url: `${username}.mivia.es`,
+      username: business.username,
+      activationCode: business.activationCode,
+      url: `${business.username}.mivia.es`,
+      status: 'DRAFT'
     })
   } catch (error) {
     console.error('[portfolio/create]', error)

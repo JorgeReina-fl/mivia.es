@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { fetchUnsplashPhoto } from '@/lib/unsplash'
 import { checkRateLimit, getClientIp, rateLimitHeaders, initCleanup } from '@/lib/rate-limit'
+import { normalizeE164 } from '@/lib/phone'
+import { profileCreateSchema } from '@/lib/zod-schemas'
 
 export const dynamic = 'force-dynamic'
 import { GoogleGenerativeAI, SchemaType, type Schema } from '@google/generative-ai'
+import { nanoid } from 'nanoid'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
@@ -207,8 +210,9 @@ async function generateWebContent(data: {
     }
   })
 
-  const phoneClean = data.contactPhone.replace(/\D/g, '').replace(/^0034/, '').replace(/^34/, '')
-  const waLink = `https://wa.me/34${phoneClean}?text=Hola%2C%20me%20gustar%C3%ADa%20pedir%20presupuesto`
+  // Extraer dígitos para el enlace de WhatsApp (el teléfono ya llega normalizado E.164)
+  const phoneDigits = data.contactPhone.replace(/\D/g, '')
+  const waLink = `https://wa.me/${phoneDigits}?text=Hola%2C%20me%20gustar%C3%ADa%20pedir%20presupuesto`
 
   const prompt = `Actúa como Senior Frontend Developer y UX Designer experto en conversiones para negocios locales españoles.
 
@@ -406,23 +410,26 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { businessName, city, services, trustReason, contactPhone, username: requestedUsername, vibe = 'modern' } = body
+    const parsed = profileCreateSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Validación fallida', details: parsed.error.format() }, { status: 400 })
+    }
+    const { businessName, city, services, trustReason, contactPhone, username: requestedUsername, vibe, legalAcceptedAt } = parsed.data
 
-    if (!businessName || !city || !services || !trustReason || !contactPhone) {
-      return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 })
+    // Normalizar teléfono a E.164
+    const normalizedPhone = normalizeE164(contactPhone)
+    if (!normalizedPhone) {
+      return NextResponse.json({ error: 'Teléfono inválido. Usa formato internacional, ej: +34600123456' }, { status: 400 })
     }
 
-    // Generar username único
-    const baseUsername = (requestedUsername && requestedUsername.trim()) ? slugify(requestedUsername) : slugify(businessName)
-    let username = baseUsername
-    let suffix = 1
-    while (await prisma.business.findUnique({ where: { username } })) {
-      username = `${baseUsername}-${suffix++}`
-    }
+    // Generar username base
+    const baseUsername = (requestedUsername && requestedUsername.trim())
+      ? slugify(requestedUsername)
+      : slugify(businessName)
 
-    // Generar contenido con Gemini
+    // Generar contenido con Gemini (UNA SOLA VEZ, antes del retry loop)
     const content = await generateWebContent({
-      businessName, city, services, trustReason, contactPhone, vibe
+      businessName, city, services, trustReason, contactPhone: normalizedPhone, vibe
     })
 
     // Fetch Unsplash images
@@ -435,7 +442,6 @@ export async function POST(req: NextRequest) {
       content.hero.image = null
       console.log('[Unsplash] Hero image fallback to solid color')
     }
-
     console.log(`[Unsplash] Fetching ${content.services.length} service images`)
     for (let i = 0; i < content.services.length; i++) {
       const service = content.services[i]
@@ -452,35 +458,56 @@ export async function POST(req: NextRequest) {
     const trialEndsAt = new Date()
     trialEndsAt.setDate(trialEndsAt.getDate() + 30)
 
-    // Guardar en BD
-    const business = await prisma.business.create({
-      data: {
-        username,
-        phone: contactPhone,
-        status: 'pending',
-        activationCode,
-        trialEndsAt,
-        legalAcceptedAt: body.legalAcceptedAt ? new Date(body.legalAcceptedAt) : new Date(),
-        profile: {
-          create: {
-            name: businessName,
-            city,
-            services: services.split(',').map((s: string) => s.trim()),
-            trustReason,
-            contactPhone,
-            images: [],
-            content,
-            seoTitle: content.seo.title,
-            seoDesc: content.seo.description,
-            template: 'trades',
-            vibe,
-          }
-        }
-      },
-      include: { profile: true }
-    })
+    // Retry loop con nanoid para colisiones de username
+    let business = null
+    let attempts = 0
+    const maxAttempts = 5
 
-    return NextResponse.json({ success: true, username: business.username, activationCode, url: `${username}.mivia.es` })
+    while (attempts < maxAttempts && !business) {
+      const username = attempts === 0 ? baseUsername : `${baseUsername}-${nanoid(6)}`
+
+      try {
+        business = await prisma.business.create({
+          data: {
+            username,
+            phone: normalizedPhone,
+            status: 'pending',
+            activationCode,
+            trialEndsAt,
+            legalAcceptedAt: new Date(legalAcceptedAt),
+            geminiDraft: {
+              create: {
+                status: 'PENDING',
+                payload: {
+                  type: 'PROFILE',
+                  originalInput: { businessName, city, services, trustReason, vibe },
+                  geminiOutput: content
+                }
+              }
+            }
+          }
+        })
+      } catch (error: unknown) {
+        if (typeof error === 'object' && error !== null && (error as { code?: string }).code === 'P2002' && attempts < maxAttempts - 1) {
+          attempts++
+          console.warn(`[Username collision] ${username} exists, retry ${attempts}/${maxAttempts}`)
+          continue
+        }
+        throw error
+      }
+    }
+
+    if (!business) {
+      return NextResponse.json({ error: 'No se pudo generar un username único' }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      username: business.username,
+      activationCode: business.activationCode,
+      url: `${business.username}.mivia.es`,
+      status: 'DRAFT'
+    })
 
   } catch (error) {
     console.error('Error creating profile:', error)
