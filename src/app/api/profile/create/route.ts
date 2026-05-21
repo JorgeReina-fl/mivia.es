@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { fetchUnsplashPhoto } from '@/lib/unsplash'
+import { checkRateLimit, getClientIp, rateLimitHeaders, initCleanup } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 import { GoogleGenerativeAI, SchemaType, type Schema } from '@google/generative-ai'
@@ -49,9 +51,25 @@ const responseSchema: Schema = {
         city: { type: SchemaType.STRING },
         subtitle: { type: SchemaType.STRING },
         phone: { type: SchemaType.STRING },
-        badges: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
+        badges: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+        imageKeyword: {
+          type: SchemaType.STRING,
+          description: "English search term for Unsplash API. Short and specific. Examples: 'plumber fixing pipes', 'hairdresser cutting hair', 'lawyer office professional'. 2-4 words max.",
+          nullable: false
+        },
+        image: {
+          type: SchemaType.OBJECT,
+          description: "Unsplash photo metadata (populated by backend)",
+          nullable: true,
+          properties: {
+            url: { type: SchemaType.STRING },
+            photographer: { type: SchemaType.STRING },
+            photographerUrl: { type: SchemaType.STRING },
+            photoId: { type: SchemaType.STRING }
+          }
+        }
       },
-      required: ['title', 'city', 'subtitle', 'phone', 'badges']
+      required: ['title', 'city', 'subtitle', 'phone', 'badges', 'imageKeyword']
     },
     services: {
       type: SchemaType.ARRAY,
@@ -60,9 +78,25 @@ const responseSchema: Schema = {
         properties: {
           icon: { type: SchemaType.STRING },
           title: { type: SchemaType.STRING },
-          description: { type: SchemaType.STRING }
+          description: { type: SchemaType.STRING },
+          imageKeyword: {
+            type: SchemaType.STRING,
+            description: "English search term for this specific service photo. Examples: 'electrical wiring installation', 'bathroom renovation', 'corporate headshots'. 2-4 words max.",
+            nullable: false
+          },
+          image: {
+            type: SchemaType.OBJECT,
+            description: "Unsplash photo metadata (populated by backend)",
+            nullable: true,
+            properties: {
+              url: { type: SchemaType.STRING },
+              photographer: { type: SchemaType.STRING },
+              photographerUrl: { type: SchemaType.STRING },
+              photoId: { type: SchemaType.STRING }
+            }
+          }
         },
-        required: ['icon', 'title', 'description']
+        required: ['icon', 'title', 'description', 'imageKeyword']
       }
     },
     trust: {
@@ -83,6 +117,31 @@ const responseSchema: Schema = {
       },
       required: ['badges', 'reasons']
     },
+    about: {
+      type: SchemaType.OBJECT,
+      description: "About us section to humanize the business",
+      nullable: false,
+      properties: {
+        heading: {
+          type: SchemaType.STRING,
+          description: "Section title, e.g., 'Sobre nosotros', 'Quiénes somos', 'Nuestra historia'",
+          nullable: false
+        },
+        story: {
+          type: SchemaType.STRING,
+          description: "2-3 paragraph story about the business: years of experience, values, what makes them different. 150-250 words. Warm and professional tone.",
+          nullable: false
+        },
+        values: {
+          type: SchemaType.ARRAY,
+          description: "3-4 core values or principles, e.g., 'Calidad garantizada', 'Atención personalizada'",
+          nullable: false,
+          items: {
+            type: SchemaType.STRING
+          }
+        }
+      }
+    },
     testimonials: {
       type: SchemaType.ARRAY,
       items: {
@@ -90,9 +149,18 @@ const responseSchema: Schema = {
         properties: {
           text: { type: SchemaType.STRING },
           author: { type: SchemaType.STRING },
-          role: { type: SchemaType.STRING }
+          rating: {
+            type: SchemaType.NUMBER,
+            description: "Rating from 4 to 5 stars. Vary between 4 and 5 to look authentic.",
+            nullable: true
+          },
+          note: {
+            type: SchemaType.STRING,
+            description: "Illustrative disclaimer. Always set to: 'Ejemplo ilustrativo — el cliente debe sustituirlo por reseñas reales de sus clientes'",
+            nullable: true
+          }
         },
-        required: ['text', 'author', 'role']
+        required: ['text', 'author']
       }
     },
     contact: {
@@ -117,7 +185,7 @@ const responseSchema: Schema = {
       required: ['title', 'description']
     }
   },
-  required: ['businessType', 'theme', 'colors', 'hero', 'services', 'trust', 'testimonials', 'contact', 'seo']
+  required: ['businessType', 'theme', 'colors', 'hero', 'services', 'trust', 'about', 'testimonials', 'contact', 'seo']
 }
 
 async function generateWebContent(data: {
@@ -258,11 +326,25 @@ INSTRUCCIONES DE CONTENIDO:
 - Array de 4-5 razones cortas por las que elegir este negocio
 - Extraer de "${data.trustReason}" y complementar con razones típicas del oficio
 
+**about:**
+- heading: Section title that fits the business tone
+- story: Brief narrative (2-3 paragraphs) about experience, philosophy, what makes them unique. Be specific to the sector.
+- values: 3-4 core principles (e.g., "Trabajo limpio", "Precios sin sorpresas", "Disponibilidad 24/7")
+
 **testimonials:**
-- Array de 2-3 testimonios ficticios pero creíbles para el oficio
-- text: testimonio de 1-2 líneas
-- author: nombre español común
-- role: rol creíble (ej: "Propietario de restaurante", "Ama de casa", "Gerente de edificio")
+- Array de 3 reviews de clientes ficticios pero creíbles
+- Use realistic Spanish names that vary (not all generic like "García" or "López")
+- Make text SPECIFIC to the service sector: mention actual services, times, or problems solved
+- Vary ratings: 2 with rating 5, 1 with rating 4
+- Keep text conversational and natural (60-100 words each)
+- Examples:
+  * Plumber: "Vino en menos de una hora cuando se reventó la tubería. Trabajo limpio y precio justo."
+  * Hair salon: "Llevo años viniendo. Siempre salen con el color perfecto y me aconsejan súper bien."
+
+IMPORTANT - Testimonials disclaimer:
+- These testimonials are ILLUSTRATIVE EXAMPLES only
+- Add a note field to each testimonial: note: "Ejemplo ilustrativo — el cliente debe sustituirlo por reseñas reales de sus clientes"
+- Never present them as real verified reviews
 
 **contact:**
 - phone: SOLO los dígitos del teléfono sin espacios ni texto. Mismo número que en hero.phone
@@ -294,6 +376,13 @@ REGLAS ESTRICTAS:
 - Los números en badges deben incluir el símbolo (ej: "15+", "24/7", "100%")
 - Los testimonios deben sonar naturales y específicos al oficio
 
+IMPORTANT - Image Keywords:
+- For hero.imageKeyword: describe the professional at work in their industry (e.g., "plumber working on pipes", "hairdresser styling hair")
+- For services[].imageKeyword: describe the specific service being performed (e.g., "bathroom tile installation", "balayage hair coloring")
+- ALWAYS in English, 2-4 words, professional photography style
+- Avoid generic terms like "business" or "professional" alone
+- Be specific to the actual work being done
+
 OUTPUT: Responde únicamente con el JSON estructurado. No añadas texto adicional.`
 
   const result = await model.generateContent(prompt)
@@ -302,6 +391,19 @@ OUTPUT: Responde únicamente con el JSON estructurado. No añadas texto adiciona
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limiting: 5 requests/hora por IP
+  initCleanup()
+  const ip = getClientIp(req)
+  const rl = checkRateLimit(ip, 5, 60 * 60 * 1000)
+
+  if (!rl.allowed) {
+    console.warn(`[Rate Limit] IP ${ip} excedió límite en /api/profile/create`)
+    return NextResponse.json(
+      { error: 'Demasiadas solicitudes. Inténtalo más tarde.' },
+      { status: 429, headers: rateLimitHeaders(rl) }
+    )
+  }
+
   try {
     const body = await req.json()
     const { businessName, city, services, trustReason, contactPhone, username: requestedUsername, vibe = 'modern' } = body
@@ -323,6 +425,28 @@ export async function POST(req: NextRequest) {
       businessName, city, services, trustReason, contactPhone, vibe
     })
 
+    // Fetch Unsplash images
+    console.log('[Unsplash] Fetching hero image for:', content.hero.imageKeyword)
+    const heroPhoto = await fetchUnsplashPhoto(content.hero.imageKeyword)
+    if (heroPhoto) {
+      content.hero.image = heroPhoto
+      console.log('[Unsplash] Hero image fetched from', heroPhoto.photographer)
+    } else {
+      content.hero.image = null
+      console.log('[Unsplash] Hero image fallback to solid color')
+    }
+
+    console.log(`[Unsplash] Fetching ${content.services.length} service images`)
+    for (let i = 0; i < content.services.length; i++) {
+      const service = content.services[i]
+      const photo = await fetchUnsplashPhoto(service.imageKeyword)
+      if (photo) {
+        service.image = photo
+      } else {
+        service.image = null
+      }
+    }
+
     // Crear trial de 30 días
     const activationCode = generateActivationCode()
     const trialEndsAt = new Date()
@@ -336,6 +460,7 @@ export async function POST(req: NextRequest) {
         status: 'pending',
         activationCode,
         trialEndsAt,
+        legalAcceptedAt: body.legalAcceptedAt ? new Date(body.legalAcceptedAt) : new Date(),
         profile: {
           create: {
             name: businessName,
