@@ -9,6 +9,7 @@ import { downloadWhatsAppMedia } from '@/lib/whatsapp'
 import { extractTextFromPDF } from '@/lib/pdf-parser'
 import { writeFile, unlink } from 'fs/promises'
 import { join } from 'path'
+import { normalizeE164 } from '@/lib/phone'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
@@ -168,6 +169,8 @@ export async function POST(req: NextRequest) {
     if (!messages) return NextResponse.json({ status: 'no message' })
 
     const from = messages.from
+    // Normalizar teléfono entrante a E.164 para búsquedas exactas
+    const normalizedFrom = normalizeE164(from) || from
 
     // Extract message or button reply
     let messageText = ''
@@ -243,11 +246,46 @@ export async function POST(req: NextRequest) {
     // Handle menu commands
     const lowerMessage = messageText ? messageText.toLowerCase().trim() : ''
 
-    // Buscar negocio por últimos 9 dígitos del teléfono
+    // Buscar negocio por teléfono normalizado E.164 (búsqueda exacta)
     const business = await prisma.business.findFirst({
-      where: { phone: { contains: from.slice(-9) }, isDeleted: false },
+      where: { phone: normalizedFrom, isDeleted: false },
       include: { profile: true, portfolio: true }
     })
+
+    // ── GESTIÓN DE CUENTAS PENDIENTES (WEB) ───────────────────────────────────
+    if (business && business.status === 'pending') {
+      const msg = messageText ? messageText.trim().toUpperCase() : ''
+      
+      if (msg === 'CANCELAR REGISTRO') {
+        await prisma.business.update({
+          where: { id: business.id },
+          data: {
+            isDeleted: true,
+            phone: `${business.phone}-deleted-${Date.now()}`,
+            status: 'cancelled'
+          }
+        })
+        await prisma.onboardingSession.deleteMany({ where: { phone: from } })
+        
+        await sendWhatsAppMessage({
+          to: from,
+          text: '✅ Registro web cancelado.\n\nEscribe "hola" si quieres iniciar el proceso de creación por WhatsApp.'
+        })
+        return NextResponse.json({ success: true })
+      }
+
+      const session = await prisma.onboardingSession.findUnique({ where: { phone: from } })
+      let text = '⚠️ Tienes una página web pendiente de activación.\n\nPara activarla, envía el comando *ACTIVA* seguido de tu código de 4 dígitos (ej: ACTIVA 1234).'
+      
+      if (session) {
+        text += '\n\nSi prefieres ignorar la web que creaste y continuar tu registro directamente por WhatsApp, escribe *CANCELAR REGISTRO*.'
+      } else {
+        text += '\n\nSi no fuiste tú quien creó esta web o quieres empezar de nuevo, escribe *CANCELAR REGISTRO*.'
+      }
+
+      await sendWhatsAppMessage({ to: from, text })
+      return NextResponse.json({ success: true })
+    }
 
     // ── USUARIO NUEVO ──────────────────────────────────────────────────────────
     if (!business) {
@@ -305,7 +343,7 @@ export async function POST(req: NextRequest) {
         await prisma.business.create({
           data: {
             username,
-            phone: from,
+            phone: normalizedFrom,
             type: 'LOCAL_BUSINESS',
             status: 'trial',
             trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
@@ -315,16 +353,16 @@ export async function POST(req: NextRequest) {
                 city,
                 services: [],
                 trustReason: 'Garantía y calidad',
-                contactPhone: from,
+                contactPhone: normalizedFrom,
                 content: {
                   businessType: 'local business',
                   theme: 'trades',
                   colors: { primary: '#000000', accent: '#cccccc', surface: '#ffffff' },
-                  hero: { title: businessName, city, subtitle: `Tu negocio en ${city}`, phone: from, badges: [] },
+                  hero: { title: businessName, city, subtitle: `Tu negocio en ${city}`, phone: normalizedFrom, badges: [] },
                   services: [],
                   trust: { badges: [], reasons: [] },
                   testimonials: [],
-                  contact: { phone: from, whatsapp: from, hours: 'L-V 9:00 - 18:00', ctaHeading: '¿Hablamos?' },
+                  contact: { phone: normalizedFrom, whatsapp: normalizedFrom, hours: 'L-V 9:00 - 18:00', ctaHeading: '¿Hablamos?' },
                   seo: { title: businessName, description: '' }
                 }
               }
@@ -382,7 +420,7 @@ export async function POST(req: NextRequest) {
         await prisma.business.create({
           data: {
             username,
-            phone: from,
+            phone: normalizedFrom,
             type: 'PORTFOLIO',
             status: 'trial',
             trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
