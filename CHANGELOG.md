@@ -761,3 +761,8 @@ Verificado: curl devuelve "tipo de web", "Negocio local",
 
 ### Última actualización
 2026-05-20
+
+**Estado:** Sprint 1 completado y desplegado en producción (2026-05-21)
+- 9 commits pushed a main
+- 11 migraciones aplicadas en PostgreSQL
+- Base de datos actualizada con 5 tablas nuevas
