@@ -1,0 +1,9 @@
+Necesitas crear una imagen og-image.png de 1200x630px.
+Contenido sugerido:
+- Fondo: #09090E (negro)
+- Logo "mivia." en blanco, tipografía Syne 800
+- Tagline: "Tu web profesional en 2 minutos"
+- Elementos: mockup de web en móvil
+- Color de acento: #7C3AED (violeta)
+
+Puedes crearla con Figma, Canva o similar y subirla a public/og-image.png

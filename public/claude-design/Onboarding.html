@@ -1,0 +1,2272 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Crear mi web gratis — mivia.es</title>
+<meta name="description" content="Crea tu web profesional en 2 minutos. Describe tu negocio, elige tu estilo y listo. Sin tarjeta, sin permanencia.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://mivia.es/onboarding">
+<meta property="og:title" content="Crear mi web gratis — mivia.es">
+<meta property="og:description" content="Tu web profesional en 2 minutos. Sin código, sin agencias.">
+<meta property="og:url" content="https://mivia.es/onboarding">
+<meta property="og:image" content="https://mivia.es/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Crear mi web gratis — mivia.es">
+<meta name="twitter:description" content="Tu web profesional en 2 minutos. Sin código, sin agencias.">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  :root {
+    --bg: #09090E;
+    --bg-2: #0F0F17;
+    --surface: #15151F;
+    --line: rgba(255,255,255,0.08);
+    --line-2: rgba(255,255,255,0.14);
+    --text: #F8F8FA;
+    --text-dim: rgba(248,248,250,0.62);
+    --text-muted: rgba(248,248,250,0.40);
+    --primary: #7C3AED;
+    --primary-soft: rgba(124,58,237,0.16);
+    --primary-glow: rgba(124,58,237,0.45);
+    --ok: #34D399;
+  }
+  * { box-sizing: border-box; }
+  html, body, #root { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: 'ss01', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+  .syne { font-family: 'Syne', 'Inter', sans-serif; letter-spacing: -0.02em; }
+  .mono { font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
+
+  /* Background atmosphere */
+  .atmos {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,58,237,0.18), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 10% 100%, rgba(124,58,237,0.10), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 100% 80%, rgba(124,58,237,0.06), transparent 60%);
+  }
+  .grain {
+    position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0.05;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+    mix-blend-mode: overlay;
+  }
+
+  input, textarea, button { font-family: inherit; color: inherit; }
+  input:focus, textarea:focus { outline: none; }
+  ::placeholder { color: rgba(248,248,250,0.28); }
+
+  /* native fade-in once per step */
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .step-in > * {
+    opacity: 0;
+    animation: stepIn 520ms cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .step-in > *:nth-child(1) { animation-delay: 0ms; }
+  .step-in > *:nth-child(2) { animation-delay: 70ms; }
+  .step-in > *:nth-child(3) { animation-delay: 140ms; }
+  .step-in > *:nth-child(4) { animation-delay: 210ms; }
+  .step-in > *:nth-child(5) { animation-delay: 280ms; }
+  .step-in > *:nth-child(6) { animation-delay: 350ms; }
+
+  @keyframes shimmerLine {
+    from { background-position: -200% 0; }
+    to   { background-position: 200% 0; }
+  }
+  @keyframes popCheck {
+    0%   { transform: scale(0.4); opacity: 0; }
+    60%  { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes rise {
+    from { transform: translateY(14px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes loaderSweep {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(220%); }
+  }
+
+  /* Custom radio-card hover */
+  .card-style {
+    transition: transform .35s cubic-bezier(.2,.7,.2,1), border-color .25s, box-shadow .25s;
+  }
+  .card-style:hover { transform: translateY(-3px); }
+
+  /* scrollable success block */
+  .scroll-y { overflow-y: auto; }
+  .scroll-y::-webkit-scrollbar { width: 8px; }
+  .scroll-y::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 8px; }
+
+  /* prevent iOS zoom on inputs */
+  @media (max-width: 640px) {
+    input, textarea { font-size: 16px !important; }
+  }
+  /* Topbar + FooterBar responsive: fix overflow on mobile */
+  @media (max-width: 640px) {
+    .topbar-side-left  { min-width: 0 !important; }
+    .topbar-side-right { min-width: 0 !important; gap: 8px !important; }
+    .topbar-badge      { display: none !important; }
+    .footer-helper     { display: none !important; }
+    .footer-hint       { display: none !important; }
+    .vibes-grid  { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+    .vibes-title { font-size: 32px !important; }
+    .vibes-sub   { display: none !important; }
+  }
+  @media (hover: none) {
+    .footer-hint       { display: none !important; }
+    .footer-bar {
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 50 !important;
+      padding: 12px 20px !important;
+      padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
+    }
+    .footer-bar button { width: 100%; justify-content: center; }
+    .step-main { padding-bottom: 80px !important; }
+    .mobile-trust-badge {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 11px;
+      color: rgba(248,248,250,0.45);
+      margin-bottom: 4px;
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 100px;
+      text-align: center;
+      width: fit-content;
+    }
+  }
+  /* Paso 2 — pantallas de poca altura (laptops 768px) */
+  @media (max-height: 800px) {
+    .step-shell        { padding-top: 28px !important; }
+    .step-kicker       { margin-bottom: 12px !important; }
+    .step-title        { font-size: clamp(22px, 3.2vw, 36px) !important; margin-bottom: 8px !important; }
+    .step-subtitle     { font-size: 14px !important; margin-bottom: 18px !important; }
+    .step-inputs-group { gap: 12px !important; }
+    .step-input        { padding: 12px 16px !important; font-size: 18px !important; }
+  }
+  /* Paso 2 — móvil: inputs compactos */
+  @media (max-width: 640px) {
+    .step-shell        { padding-top: 32px !important; }
+    .step-inputs-group { gap: 10px !important; }
+    .step-input        { padding: 12px 16px !important; font-size: 16px !important; }
+  }
+  /* Scroll correcto en el contenido del onboarding */
+  .onboarding-root { height: 100vh; overflow: hidden; }
+  .step-main {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+</style>
+</head>
+<body>
+  <div class="atmos"></div>
+  <div class="grain"></div>
+  <div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useMemo } = React;
+
+/* ------------------------------------------------------------ */
+/* ICONS (inline, minimal, stroke-based — no library)            */
+/* ------------------------------------------------------------ */
+const Icon = ({ d, size=22, stroke=1.6, ...rest }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" strokeWidth={stroke}
+       strokeLinecap="round" strokeLinejoin="round" {...rest}>
+    {d}
+  </svg>
+);
+const IStore = (p) => <Icon {...p} d={<>
+  <path d="M3 9.5 4.2 5a2 2 0 0 1 1.9-1.4h11.8A2 2 0 0 1 19.8 5L21 9.5"/>
+  <path d="M3 9.5h18v9A1.5 1.5 0 0 1 19.5 20h-15A1.5 1.5 0 0 1 3 18.5v-9Z"/>
+  <path d="M3 9.5c0 1.7 1.3 3 3 3s3-1.3 3-3"/>
+  <path d="M9 9.5c0 1.7 1.3 3 3 3s3-1.3 3-3"/>
+  <path d="M15 9.5c0 1.7 1.3 3 3 3s3-1.3 3-3"/>
+</>} />;
+const IWrench = (p) => <Icon {...p} d={<>
+  <path d="M14.7 6.3a4 4 0 0 0 5.5 5.5l-9 9a2.1 2.1 0 0 1-3-3l9-9 Z"/>
+  <path d="M9 14.5 7.5 13"/>
+</>} />;
+const ISpark = (p) => <Icon {...p} d={<>
+  <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>
+  <circle cx="12" cy="12" r="3.2"/>
+</>} />;
+const IPhone = (p) => <Icon {...p} d={<>
+  <rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/>
+  <path d="M10.5 18.5h3"/>
+</>} />;
+const IList = (p) => <Icon {...p} d={<>
+  <path d="M4 6h16M4 12h16M4 18h10"/>
+</>} />;
+const IPalette = (p) => <Icon {...p} d={<>
+  <path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-1 1.4-2-.3-.8 0-1.7.7-2.2.7-.5 1.6-.5 2.3 0 .7.5 1.6.3 1.9-.4A9 9 0 0 0 12 3Z"/>
+  <circle cx="7.5" cy="11" r="1"/>
+  <circle cx="9.5" cy="7.5" r="1"/>
+  <circle cx="14.5" cy="7.5" r="1"/>
+  <circle cx="17" cy="11" r="1"/>
+</>} />;
+const IArrow = (p) => <Icon {...p} d={<><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></>} />;
+const IArrowBack = (p) => <Icon {...p} d={<><path d="M19 12H5"/><path d="m11 6-6 6 6 6"/></>} />;
+const ICheck = (p) => <Icon {...p} d={<path d="m5 12.5 4.5 4.5L19 7"/>} />;
+const IShield = (p) => <Icon {...p} d={<>
+  <path d="M12 3 4.5 6v6c0 4.5 3 7.7 7.5 9 4.5-1.3 7.5-4.5 7.5-9V6L12 3Z"/>
+  <path d="m9 12 2 2 4-4"/>
+</>} />;
+const IWhats = (p) => <Icon {...p} d={<>
+  <path d="M4 20 5.3 16A8 8 0 1 1 8 18.7L4 20Z"/>
+  <path d="M9 9c.2-.6.7-1 1.3-1 .4 0 .7.2.9.5l.7 1.3c.1.3.1.5 0 .8-.2.5-.7.8-.7.8s.4 1 1.2 1.8 1.8 1.2 1.8 1.2.3-.5.8-.7c.3-.1.5-.1.8 0l1.3.7c.3.2.5.5.5.9 0 .6-.4 1.1-1 1.3-1.4.5-3.3.1-5.1-1.7C7.7 13 7.3 11.4 7.7 10c0-.4.6-1 1.3-1Z"/>
+</>} />;
+const ISparkle = (p) => <Icon {...p} d={<>
+  <path d="M12 3v4M12 17v4M3 12h4M17 12h4"/>
+  <path d="M12 7c0 2.5 2.5 5 5 5-2.5 0-5 2.5-5 5 0-2.5-2.5-5-5-5 2.5 0 5-2.5 5-5Z"/>
+</>} />;
+const ICopy = (p) => <Icon {...p} d={<>
+  <rect x="8" y="8" width="12" height="12" rx="2"/>
+  <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>
+</>} />;
+const IUser = (p) => <Icon {...p} d={<>
+  <circle cx="12" cy="8" r="4"/>
+  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+</>} />;
+const IBriefcase = (p) => <Icon {...p} d={<>
+  <rect x="2" y="7" width="20" height="14" rx="2"/>
+  <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+  <path d="M12 12v4M10 14h4"/>
+</>} />;
+
+/* ------------------------------------------------------------ */
+/* CHROME                                                        */
+/* ------------------------------------------------------------ */
+function Logo({ small=false }) {
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:10}}>
+      <div style={{
+        width:28, height:28, borderRadius:8,
+        background:"linear-gradient(140deg, #7C3AED 0%, #5B21B6 100%)",
+        boxShadow:"0 0 0 1px rgba(255,255,255,0.06), 0 8px 24px -8px rgba(124,58,237,0.6)",
+        display:"grid", placeItems:"center"
+      }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M4 18V6l8 8 8-8v12" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+      <div className="syne" style={{fontWeight:700, fontSize:18, letterSpacing:"-0.02em"}}>
+        mivia<span style={{color:"var(--primary)"}}>.</span>
+      </div>
+    </div>
+  );
+}
+
+function ProgressBar({ step, total=6 }) {
+  // Hide actual count — show as thin segments. Progress is felt, not counted.
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:6,minWidth:160}}>
+      {Array.from({length: total}).map((_,i) => {
+        const active = i < step;
+        const current = i === step - 1;
+        return (
+          <div key={i} style={{
+            height: 3, borderRadius: 99, flex: current ? 2.4 : 1,
+            background: active
+              ? "linear-gradient(90deg, #7C3AED, #A78BFA)"
+              : "rgba(255,255,255,0.08)",
+            transition: "flex .5s cubic-bezier(.2,.7,.2,1), background .4s",
+            boxShadow: current ? "0 0 12px rgba(124,58,237,0.55)" : "none",
+            position: "relative", overflow:"hidden"
+          }}>
+            {current && (
+              <div style={{
+                position:"absolute", inset:0,
+                background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent)",
+                animation:"loaderSweep 1.8s linear infinite",
+                width:"40%"
+              }} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function Topbar({ step, onBack, total=6 }) {
+  return (
+    <header style={{
+      position:"relative", zIndex:5,
+      display:"flex", alignItems:"center", justifyContent:"space-between",
+      padding:"20px 28px",
+      borderBottom:"1px solid var(--line)",
+      backdropFilter:"blur(6px)"
+    }}>
+      <div className="topbar-side-left" style={{display:"flex", alignItems:"center", gap:18, minWidth:240}}>
+        <Logo/>
+      </div>
+      <div style={{flex:1, display:"flex", justifyContent:"center"}}>
+        <ProgressBar step={step} total={total}/>
+      </div>
+      <div className="topbar-side-right" style={{display:"flex", alignItems:"center", gap:12, minWidth:240, justifyContent:"flex-end"}}>
+        <div className="topbar-badge" style={{
+          display:"flex", alignItems:"center", gap:8,
+          padding:"6px 12px", borderRadius:99,
+          background:"rgba(52,211,153,0.08)",
+          border:"1px solid rgba(52,211,153,0.22)",
+          color:"#86EFC0", fontSize:12, fontWeight:500
+        }}>
+          <IShield size={14} stroke={1.8}/>
+          Sin tarjeta · Cancela cuando quieras
+        </div>
+        {step > 1 && step <= total && (
+          <button onClick={onBack} style={{
+            display:"inline-flex", alignItems:"center", gap:6,
+            background:"transparent", border:"1px solid var(--line)",
+            color:"var(--text-dim)", padding:"8px 12px", borderRadius:10,
+            cursor:"pointer", fontSize:13
+          }}>
+            <IArrowBack size={14}/> Atrás
+          </button>
+        )}
+      </div>
+    </header>
+  );
+}
+
+/* ------------------------------------------------------------ */
+/* SHARED INPUT PRIMITIVES                                       */
+/* ------------------------------------------------------------ */
+function Field({ label, hint, children }) {
+  return (
+    <label style={{display:"block"}}>
+      <div style={{
+        fontSize:12, textTransform:"uppercase", letterSpacing:"0.12em",
+        color:"var(--text-muted)", marginBottom:10, fontWeight:600
+      }}>{label}</div>
+      {children}
+      {hint && (
+        <div style={{marginTop:10, color:"var(--text-muted)", fontSize:13, display:"flex", alignItems:"center", gap:6}}>
+          <span style={{
+            display:"inline-block", width:14, height:14, borderRadius:99,
+            border:"1px solid var(--line-2)", textAlign:"center",
+            lineHeight:"12px", fontSize:9, color:"var(--text-muted)"
+          }}>i</span>
+          {hint}
+        </div>
+      )}
+    </label>
+  );
+}
+
+const inputStyle = {
+  width:"100%",
+  background:"rgba(255,255,255,0.025)",
+  borderStyle:"solid",
+  borderWidth:"1px",
+  borderTopColor:"rgba(255,255,255,0.08)",
+  borderLeftColor:"rgba(255,255,255,0.08)",
+  borderRightColor:"rgba(255,255,255,0.08)",
+  borderBottomColor:"rgba(255,255,255,0.14)",
+  borderRadius:14,
+  padding:"18px 18px",
+  fontSize:22, fontWeight:500, color:"var(--text)",
+  transition:"border-color .2s, background .2s, box-shadow .2s",
+  fontFamily:"'Inter', sans-serif",
+};
+const inputFocus = {
+  borderTopColor:"#7C3AED",
+  borderLeftColor:"#7C3AED",
+  borderRightColor:"#7C3AED",
+  borderBottomColor:"#7C3AED",
+  background:"rgba(124,58,237,0.06)",
+  boxShadow:"0 0 0 4px rgba(124,58,237,0.12)"
+};
+
+function TextInput({ value, onChange, placeholder, ...rest }) {
+  const [f, setF] = useState(false);
+  return (
+    <input
+      className="step-input"
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      onFocus={() => setF(true)}
+      onBlur={() => setF(false)}
+      style={{...inputStyle, ...(f ? inputFocus : {})}}
+      {...rest}
+    />
+  );
+}
+
+function TextArea({ value, onChange, placeholder, rows=3 }) {
+  const [f, setF] = useState(false);
+  return (
+    <textarea
+      className="step-input"
+      rows={rows}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      onFocus={() => setF(true)}
+      onBlur={() => setF(false)}
+      style={{...inputStyle, fontSize:18, resize:"none", lineHeight:1.5, ...(f ? inputFocus : {})}}
+    />
+  );
+}
+
+/* ------------------------------------------------------------ */
+/* STEP SHELL                                                    */
+/* ------------------------------------------------------------ */
+function StepShell({ kicker, title, subtitle, icon, children, side }) {
+  return (
+    <div className="step-in step-shell" style={{
+      display:"grid",
+      gridTemplateColumns: side ? "1.05fr 0.95fr" : "1fr",
+      gap:64, alignItems:"start",
+      maxWidth: side ? 1180 : 720,
+      margin:"0 auto",
+      padding:"56px 28px 32px",
+      width:"100%"
+    }}>
+      <div>
+        <div className="step-kicker" style={{display:"flex", alignItems:"center", gap:12, marginBottom:22}}>
+          <div style={{
+            width:42, height:42, borderRadius:12,
+            display:"grid", placeItems:"center",
+            background:"linear-gradient(140deg, rgba(124,58,237,0.18), rgba(124,58,237,0.04))",
+            border:"1px solid rgba(124,58,237,0.35)",
+            color:"#C4B5FD"
+          }}>
+            {icon}
+          </div>
+          <div style={{color:"var(--text-muted)", fontSize:13, letterSpacing:"0.18em", textTransform:"uppercase", fontWeight:600}}>
+            {kicker}
+          </div>
+        </div>
+        <h1 className="syne step-title" style={{
+          fontSize: 48, fontWeight:700, lineHeight:1.05,
+          margin:"0 0 16px", letterSpacing:"-0.025em",
+          textWrap:"balance"
+        }}>{title}</h1>
+        {subtitle && (
+          <p className="step-subtitle" style={{
+            fontSize:17, color:"var(--text-dim)", lineHeight:1.55,
+            margin:"0 0 36px", maxWidth: 540, textWrap:"pretty"
+          }}>{subtitle}</p>
+        )}
+        <div className="step-inputs-group" style={{display:"flex", flexDirection:"column", gap:22}}>
+          {children}
+        </div>
+      </div>
+      {side}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ */
+/* STEP 0 — TYPE SELECTOR                                        */
+/* ------------------------------------------------------------ */
+function TypeCard({ id, icon, title, desc, selected, onSelect }) {
+  return (
+    <button
+      className="card-style"
+      onClick={onSelect}
+      style={{
+        textAlign:"left",
+        background: selected ? "rgba(124,58,237,0.08)" : "rgba(255,255,255,0.02)",
+        border: selected ? "1px solid rgba(124,58,237,0.7)" : "1px solid rgba(255,255,255,0.10)",
+        boxShadow: selected ? "0 0 0 1px rgba(124,58,237,0.3), 0 20px 40px -20px rgba(124,58,237,0.4)" : "none",
+        borderRadius:20, padding:"28px 24px", cursor:"pointer", color:"var(--text)",
+        display:"flex", flexDirection:"column", gap:18, flex:1
+      }}>
+      <div style={{
+        width:52, height:52, borderRadius:14,
+        background: selected ? "rgba(124,58,237,0.2)" : "rgba(255,255,255,0.05)",
+        border: selected ? "1px solid rgba(124,58,237,0.5)" : "1px solid rgba(255,255,255,0.08)",
+        display:"grid", placeItems:"center",
+        color: selected ? "#C4B5FD" : "var(--text-dim)",
+        transition:"all .25s"
+      }}>
+        {icon}
+      </div>
+      <div>
+        <div className="syne" style={{fontSize:22, fontWeight:700, letterSpacing:"-0.015em", marginBottom:8}}>
+          {title}
+        </div>
+        <div style={{fontSize:14, color:"var(--text-dim)", lineHeight:1.55}}>
+          {desc}
+        </div>
+      </div>
+      {selected && (
+        <div style={{
+          display:"flex", alignItems:"center", gap:8,
+          fontSize:13, fontWeight:600, color:"#C4B5FD"
+        }}>
+          <ICheck size={14} stroke={2.5}/> Seleccionado
+        </div>
+      )}
+    </button>
+  );
+}
+
+function Step0({ data, set }) {
+  return (
+    <div className="step-in step-shell" style={{
+      maxWidth:860, margin:"0 auto", padding:"56px 28px 32px", width:"100%"
+    }}>
+      <div style={{display:"flex", alignItems:"center", gap:12, marginBottom:22}}>
+        <div style={{
+          width:42, height:42, borderRadius:12, display:"grid", placeItems:"center",
+          background:"linear-gradient(140deg, rgba(124,58,237,0.18), rgba(124,58,237,0.04))",
+          border:"1px solid rgba(124,58,237,0.35)", color:"#C4B5FD"
+        }}>
+          <ISpark/>
+        </div>
+        <div style={{color:"var(--text-muted)", fontSize:13, letterSpacing:"0.18em", textTransform:"uppercase", fontWeight:600}}>
+          Empecemos
+        </div>
+      </div>
+      <h1 className="syne step-title" style={{
+        fontSize:48, fontWeight:700, lineHeight:1.05,
+        margin:"0 0 12px", letterSpacing:"-0.025em", textWrap:"balance"
+      }}>
+        ¿Qué tipo de web quieres crear?
+      </h1>
+      <p className="step-subtitle" style={{
+        fontSize:17, color:"var(--text-dim)", lineHeight:1.55,
+        margin:"0 0 36px", maxWidth:540
+      }}>
+        Elige el formato que mejor encaja con lo que haces.
+      </p>
+      <div style={{display:"flex", gap:20, flexWrap:"wrap"}}>
+        <TypeCard
+          id="local"
+          icon={<IStore size={26}/>}
+          title="Negocio local"
+          desc="Fontanero, peluquería, clínica, taller... Una web que convierte visitas en llamadas y mensajes de WhatsApp."
+          selected={data.type === "local"}
+          onSelect={() => set("type", "local")}
+        />
+        <TypeCard
+          id="portfolio"
+          icon={<IBriefcase size={26}/>}
+          title="Portfolio profesional"
+          desc="Diseñador, programador, consultor, fotógrafo... Muestra tu trabajo y consigue clientes con tu nombre."
+          selected={data.type === "portfolio"}
+          onSelect={() => set("type", "portfolio")}
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ */
+/* STEP COMPONENTS                                               */
+/* ------------------------------------------------------------ */
+function Step1({ data, set }) {
+  return (
+    <StepShell
+      kicker="Empecemos"
+      icon={<IStore/>}
+      title="¿Cómo se llama tu negocio?"
+      subtitle="Solo dos cosas para arrancar. En 30 segundos tu web estará lista."
+    >
+      <div className="mobile-trust-badge" style={{display:"none"}}>
+        ✓ Sin tarjeta · Sin permanencia · Cancela cuando quieras
+      </div>
+      <Field label="Nombre del negocio">
+        <TextInput
+          value={data.name}
+          onChange={v => set("name", v)}
+          placeholder="Ej: Fontanería Rápida, Peluquería Carmen, Talleres Paco"
+          autoFocus
+        />
+      </Field>
+      <Field label="Ciudad o zona" hint="No te preocupes, podrás cambiarlo después por WhatsApp.">
+        <TextInput
+          value={data.city}
+          onChange={v => set("city", v)}
+          placeholder="Ej: Madrid, Sevilla, Bilbao"
+        />
+      </Field>
+    </StepShell>
+  );
+}
+
+function Step2({ data, set }) {
+  const services = data.services && data.services.length === 3 ? data.services : ["","",""];
+  const updateAt = (i, v) => {
+    const next = [...services]; next[i] = v;
+    set("services", next);
+  };
+  const examples = [
+    "Reparaciones urgentes",
+    "Instalaciones de baño",
+    "Reformas de cocina"
+  ];
+  return (
+    <StepShell
+      kicker="Lo que mejor haces"
+      icon={<IWrench/>}
+      title="¿Qué tres servicios ofreces?"
+      subtitle="Los más importantes. Esos por los que la gente te llama, en tus palabras."
+    >
+      {[0,1,2].map(i => (
+        <Field key={i} label={`Servicio ${i+1}`} hint={i===0 ? "Sé concreto. Mejor «Reparación de fugas» que «Trabajos varios»." : null}>
+          <TextInput
+            value={services[i]}
+            onChange={v => updateAt(i, v)}
+            placeholder={`Ej: ${examples[i]}`}
+          />
+        </Field>
+      ))}
+    </StepShell>
+  );
+}
+
+function Step3({ data, set }) {
+  return (
+    <StepShell
+      kicker="Lo que te hace diferente"
+      icon={<ISpark/>}
+      title="¿Por qué deberían elegirte a ti?"
+      subtitle="Una frase corta que un cliente recordaría. Sin fórmulas raras: di lo que dirías en persona."
+    >
+      <Field label="Tu propuesta de valor" hint="Una o dos frases. Si no se te ocurre, escribe lo que dicen tus mejores clientes.">
+        <TextArea
+          value={data.description}
+          onChange={v => set("description", v)}
+          placeholder="Ej: 20 años arreglando lo que otros no saben tocar. Aviso si voy a tardar, presupuesto antes de empezar y trato cercano de toda la vida."
+          rows={5}
+        />
+      </Field>
+    </StepShell>
+  );
+}
+
+function Step4({ data, set }) {
+  return (
+    <StepShell
+      kicker="Para que te contacten"
+      icon={<IPhone/>}
+      title="¿Dónde quieres que te escriban?"
+      subtitle="Aparecerán como botones grandes en tu web. Nadie tendrá que buscarte."
+    >
+      <Field label="Teléfono">
+        <TextInput
+          value={data.phone}
+          onChange={v => set("phone", v)}
+          placeholder="Ej: 612 34 56 78"
+          inputMode="tel"
+        />
+      </Field>
+      <Field label="Email" hint="Lo usaremos solo para mandarte tu enlace, nunca para publicidad.">
+        <TextInput
+          value={data.email}
+          onChange={v => set("email", v)}
+          placeholder="Ej: carmen@tu-negocio.com"
+          inputMode="email"
+        />
+      </Field>
+    </StepShell>
+  );
+}
+
+function ReviewRow({ label, value, accent }) {
+  return (
+    <div style={{
+      display:"grid", gridTemplateColumns:"160px 1fr", gap:20,
+      padding:"18px 4px",
+      borderTop:"1px solid var(--line)"
+    }}>
+      <div style={{
+        fontSize:12, textTransform:"uppercase", letterSpacing:"0.12em",
+        color:"var(--text-muted)", fontWeight:600, paddingTop:2
+      }}>{label}</div>
+      <div style={{fontSize: accent ? 20 : 16, color: accent ? "var(--text)" : "var(--text-dim)", lineHeight:1.45, fontWeight: accent ? 600 : 400, textWrap:"pretty"}}>
+        {value || <span style={{color:"var(--text-muted)", fontStyle:"italic"}}>— vacío —</span>}
+      </div>
+    </div>
+  );
+}
+
+function Step5({ data }) {
+  const services = (data.services || []).filter(Boolean);
+  return (
+    <StepShell
+      kicker="Última mirada"
+      icon={<IList/>}
+      title="¿Está todo correcto?"
+      subtitle="Una pasada rápida. Si algo no encaja, vuelves atrás y lo arreglas en segundos."
+    >
+      <div style={{
+        borderRadius:18,
+        background:"linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01))",
+        border:"1px solid var(--line)",
+        padding:"4px 22px 18px"
+      }}>
+        <ReviewRow label="Negocio" value={data.name} accent/>
+        <ReviewRow label="Ciudad" value={data.city}/>
+        <ReviewRow label="Servicios" value={
+          services.length
+            ? <div style={{display:"flex", flexWrap:"wrap", gap:8}}>
+                {services.map((s,i) => (
+                  <span key={i} style={{
+                    padding:"6px 12px", borderRadius:99,
+                    background:"rgba(124,58,237,0.10)",
+                    border:"1px solid rgba(124,58,237,0.28)",
+                    color:"#DDD6FE", fontSize:14
+                  }}>{s}</span>
+                ))}
+              </div>
+            : ""
+        }/>
+        <ReviewRow label="Propuesta" value={data.description}/>
+        <ReviewRow label="Teléfono" value={data.phone}/>
+        <ReviewRow label="Email" value={data.email}/>
+      </div>
+      <div style={{
+        display:"flex", alignItems:"center", gap:10, color:"var(--text-muted)", fontSize:13
+      }}>
+        <IShield size={14}/>
+        Sin tarjeta. Podrás cambiar cualquier cosa después escribiéndonos por WhatsApp.
+      </div>
+    </StepShell>
+  );
+}
+
+/* ------------------------------------------------------------ */
+/* STEP 6 — VISUAL STYLE SELECTOR                                */
+/* ------------------------------------------------------------ */
+
+const VIBES = [
+  {
+    id:"elegant",
+    name:"Boutique",
+    tagline:"Sereno · Sofisticado",
+    swatches:["#0B0B0B","#E9D9A7","#F4EFE6"],
+    pitch:"Para quien quiere que su web hable bajo y diga mucho."
+  },
+  {
+    id:"warm",
+    name:"Hogar",
+    tagline:"Cálido · Cercano",
+    swatches:["#C66B3D","#E8C9A0","#F7EFE5"],
+    pitch:"Cercanía de barrio, oficio de toda la vida."
+  },
+  {
+    id:"modern",
+    name:"Estudio",
+    tagline:"Limpio · Tecnológico",
+    swatches:["#0EA5E9","#0F1A2B","#E6F4FB"],
+    pitch:"Confianza profesional, vibra de marca contemporánea."
+  },
+  {
+    id:"brutal",
+    name:"Impacto",
+    tagline:"Directo · Sin filtros",
+    swatches:["#FFE600","#0A0A0A","#F2F2F2"],
+    pitch:"Que nadie pase de largo. Para los que tienen mucho que decir."
+  },
+];
+
+function MiniSiteRender({ vibe, data }) {
+  // Renders a tiny realistic mock of the chosen vibe.
+  const name = data.name || "Tu negocio";
+  const city = data.city || "tu ciudad";
+  const services = (data.services||[]).filter(Boolean);
+  const phone = data.phone || "612 34 56 78";
+
+  if (vibe.id === "elegant") {
+    return (
+      <div style={{
+        background:"#0B0B0B", color:"#F4EFE6", height:"100%",
+        fontFamily:"'Syne', serif", padding:"18px 18px 14px",
+        position:"relative", overflow:"hidden"
+      }}>
+        <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", fontSize:9, letterSpacing:"0.2em", textTransform:"uppercase", color:"#E9D9A7"}}>
+          <div>EST. 2014</div><div>{city.toUpperCase()}</div>
+        </div>
+        <div style={{height:1, background:"#E9D9A7", margin:"10px 0 18px", opacity:0.5}}/>
+        <div style={{fontSize:22, lineHeight:1.05, letterSpacing:"-0.02em", marginBottom:8}}>
+          {name}
+        </div>
+        <div style={{fontFamily:"'Inter', sans-serif", fontSize:9, color:"rgba(244,239,230,0.55)", lineHeight:1.5, marginBottom:14}}>
+          {services[0] || "Servicio destacado"} · {services[1] || "Hecho a medida"} · {services[2] || "Asesoramiento"}
+        </div>
+        <div style={{
+          background:"linear-gradient(135deg, #1a1a1a, #0b0b0b)",
+          border:"1px solid rgba(233,217,167,0.25)",
+          aspectRatio:"16/9", borderRadius:2, marginBottom:12,
+          display:"grid", placeItems:"center", color:"rgba(233,217,167,0.4)", fontSize:8, fontFamily:"monospace"
+        }}>vitrina · imagen</div>
+        <div style={{display:"inline-block", border:"1px solid #E9D9A7", color:"#E9D9A7", padding:"6px 10px", fontSize:9, letterSpacing:"0.16em", textTransform:"uppercase"}}>
+          Reservar visita
+        </div>
+      </div>
+    );
+  }
+  if (vibe.id === "warm") {
+    return (
+      <div style={{
+        background:"#F7EFE5", color:"#3B2A1F", height:"100%",
+        fontFamily:"'Inter', sans-serif", padding:"16px 16px 12px",
+        position:"relative", overflow:"hidden"
+      }}>
+        <div style={{display:"flex", alignItems:"center", gap:6, fontSize:9, fontWeight:600, color:"#8B5A3C"}}>
+          <div style={{width:14, height:14, borderRadius:99, background:"#C66B3D"}}/>
+          {name}
+        </div>
+        <div style={{marginTop:12, fontSize:18, lineHeight:1.15, fontWeight:700, letterSpacing:"-0.02em"}}>
+          Hola, somos tus vecinos de {city}.
+        </div>
+        <div style={{fontSize:9, color:"#7A5A47", marginTop:6, marginBottom:10, lineHeight:1.5}}>
+          {(data.description || "Llevamos años haciendo bien lo nuestro, cerca de ti.").slice(0,110)}
+        </div>
+        <div style={{display:"flex", gap:6, marginBottom:10}}>
+          {[0,1,2].map(i => (
+            <div key={i} style={{
+              flex:1, background:"#E8C9A0", borderRadius:14, padding:"6px 7px", fontSize:8, color:"#4A2E1B", lineHeight:1.3, fontWeight:600
+            }}>{services[i] || "Servicio"}</div>
+          ))}
+        </div>
+        <div style={{
+          display:"inline-flex", alignItems:"center", gap:6,
+          background:"#C66B3D", color:"#FFF8EF", padding:"6px 12px",
+          borderRadius:99, fontSize:9, fontWeight:600
+        }}>Llamar al {phone.slice(0,9)}…</div>
+      </div>
+    );
+  }
+  if (vibe.id === "modern") {
+    return (
+      <div style={{
+        background:"#0F1A2B", color:"#E6F4FB", height:"100%",
+        fontFamily:"'Inter', sans-serif", padding:"14px 14px 12px",
+        position:"relative", overflow:"hidden"
+      }}>
+        <div style={{display:"flex", justifyContent:"space-between", fontSize:9, fontWeight:600}}>
+          <div style={{display:"flex", alignItems:"center", gap:6}}>
+            <div style={{width:8, height:8, background:"#0EA5E9", borderRadius:2}}/>
+            {name}
+          </div>
+          <div style={{color:"#0EA5E9"}}>/ {city}</div>
+        </div>
+        <div style={{
+          marginTop:14, fontSize:17, lineHeight:1.05, fontWeight:700, letterSpacing:"-0.03em"
+        }}>
+          Trabajo limpio.<br/><span style={{color:"#0EA5E9"}}>Resultados visibles.</span>
+        </div>
+        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:5, marginTop:12}}>
+          {[0,1,2,3].map(i => (
+            <div key={i} style={{
+              background:"rgba(14,165,233,0.07)",
+              border:"1px solid rgba(14,165,233,0.25)",
+              padding:"6px 7px", fontSize:8, color:"#9ED7F0",
+              display:"flex", justifyContent:"space-between"
+            }}>
+              <span>0{i+1}</span><span>{services[i] ? services[i].slice(0,14) : "—"}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{
+          marginTop:10, display:"inline-flex", alignItems:"center", gap:6,
+          background:"#0EA5E9", color:"#06121E", padding:"6px 10px",
+          fontSize:9, fontWeight:700, borderRadius:6
+        }}>Pedir presupuesto →</div>
+      </div>
+    );
+  }
+  // brutal
+  return (
+    <div style={{
+      background:"#FFE600", color:"#0A0A0A", height:"100%",
+      fontFamily:"'Syne', sans-serif", padding:"12px 12px 10px",
+      position:"relative", overflow:"hidden"
+    }}>
+      <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", fontSize:8, fontWeight:800}}>
+        <div>{name.toUpperCase()}</div>
+        <div style={{background:"#0A0A0A", color:"#FFE600", padding:"2px 6px"}}>{city.toUpperCase()}</div>
+      </div>
+      <div style={{
+        marginTop:14, fontSize:24, lineHeight:0.92, fontWeight:800, letterSpacing:"-0.04em", textTransform:"uppercase"
+      }}>
+        LO HACEMOS.<br/>PUNTO.
+      </div>
+      <div style={{display:"flex", flexDirection:"column", gap:3, marginTop:12, fontFamily:"'Inter', sans-serif"}}>
+        {[0,1,2].map(i => (
+          <div key={i} style={{
+            background:"#0A0A0A", color:"#FFE600",
+            padding:"4px 7px", fontSize:9, fontWeight:700,
+            display:"flex", justifyContent:"space-between"
+          }}>
+            <span>→ {services[i] || `SERVICIO 0${i+1}`}</span>
+            <span>·</span>
+          </div>
+        ))}
+      </div>
+      <div style={{
+        marginTop:10, background:"#0A0A0A", color:"#FFE600",
+        padding:"6px 10px", fontSize:10, fontWeight:800, display:"inline-block",
+        textTransform:"uppercase"
+      }}>LLAMA AHORA</div>
+    </div>
+  );
+}
+
+function VibeCard({ vibe, data, selected, onSelect }) {
+  const accent = vibe.swatches[0];
+  const accentRgb = accent.replace('#','').match(/.{2}/g).map(h=>parseInt(h,16)).join(',');
+  return (
+    <button
+      className="card-style"
+      onClick={onSelect}
+      style={{
+        textAlign:"left",
+        background: selected
+          ? `rgba(${accentRgb},0.06)`
+          : `rgba(${accentRgb},0.03)`,
+        border: selected
+          ? `1px solid rgba(${accentRgb},0.7)`
+          : `1px solid rgba(${accentRgb},0.25)`,
+        boxShadow: selected
+          ? `0 0 0 1px rgba(${accentRgb},0.4), 0 20px 40px -20px rgba(${accentRgb},0.45)`
+          : `0 10px 30px -20px rgba(0,0,0,0.5)`,
+        borderRadius:20, padding:14, cursor:"pointer", color:"var(--text)",
+        position:"relative", overflow:"hidden",
+        display:"flex", flexDirection:"column", gap:12
+      }}>
+      {/* mini "browser" mock */}
+      <div style={{
+        borderRadius:10, overflow:"hidden",
+        border:`1px solid rgba(${accentRgb},0.2)`,
+        aspectRatio:"16/11", position:"relative",
+        background:"#000"
+      }}>
+        <div style={{
+          height:14, background:"rgba(255,255,255,0.04)",
+          borderBottom:"1px solid rgba(255,255,255,0.06)",
+          display:"flex", alignItems:"center", gap:3, padding:"0 6px"
+        }}>
+          <span style={{width:5, height:5, borderRadius:99, background:"#3A3A45"}}/>
+          <span style={{width:5, height:5, borderRadius:99, background:"#3A3A45"}}/>
+          <span style={{width:5, height:5, borderRadius:99, background:"#3A3A45"}}/>
+          <div style={{flex:1, height:6, marginLeft:6, borderRadius:99, background:"rgba(255,255,255,0.05)"}}/>
+        </div>
+        <div style={{position:"absolute", inset:"14px 0 0 0"}}>
+          <MiniSiteRender vibe={vibe} data={data}/>
+        </div>
+        {selected && (
+          <div style={{
+            position:"absolute", top:8, right:8,
+            width:24, height:24, borderRadius:99,
+            background:"var(--primary)", display:"grid", placeItems:"center",
+            boxShadow:"0 0 0 4px rgba(124,58,237,0.25)",
+            animation:"popCheck 380ms cubic-bezier(.2,.7,.2,1)"
+          }}>
+            <ICheck size={14} stroke={2.6}/>
+          </div>
+        )}
+      </div>
+      {/* color strip */}
+      <div style={{
+        height:5, borderRadius:99,
+        background:`linear-gradient(90deg, ${vibe.swatches.join(', ')})`,
+        opacity: selected ? 1 : 0.7
+      }}/>
+      <div>
+        <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", gap:8}}>
+          <div className="syne" style={{fontSize:20, fontWeight:700, letterSpacing:"-0.01em"}}>{vibe.name}</div>
+          <div style={{
+            fontSize:10, fontWeight:600, letterSpacing:"0.1em", textTransform:"uppercase",
+            padding:"3px 8px", borderRadius:99,
+            background:`rgba(${accentRgb},0.15)`,
+            color: accent,
+            border:`1px solid rgba(${accentRgb},0.3)`
+          }}>{vibe.tagline.split(' · ')[0]}</div>
+        </div>
+        <div style={{fontSize:12, color:"var(--text-muted)", marginTop:4, letterSpacing:"0.04em"}}>
+          {vibe.tagline}
+        </div>
+        <div style={{fontSize:13, color:"var(--text-dim)", marginTop:8, lineHeight:1.4, textWrap:"pretty"}}>
+          {vibe.pitch}
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function Step6({ data, set, legalAccepted, setLegalAccepted }) {
+  return (
+    <div className="step-in" style={{
+      maxWidth: 1180, margin:"0 auto", padding:"40px 28px 28px", width:"100%"
+    }}>
+      <div style={{display:"flex", alignItems:"center", gap:12, marginBottom:14}}>
+        <div style={{
+          width:42, height:42, borderRadius:12, display:"grid", placeItems:"center",
+          background:"linear-gradient(140deg, rgba(124,58,237,0.18), rgba(124,58,237,0.04))",
+          border:"1px solid rgba(124,58,237,0.35)", color:"#C4B5FD"
+        }}>
+          <IPalette/>
+        </div>
+        <div style={{color:"var(--text-muted)", fontSize:13, letterSpacing:"0.18em", textTransform:"uppercase", fontWeight:600}}>
+          La cara que dará al mundo
+        </div>
+      </div>
+      <div style={{display:"flex", justifyContent:"space-between", alignItems:"end", gap:24, flexWrap:"wrap", marginBottom:28}}>
+        <h1 className="syne vibes-title" style={{
+          fontSize:48, fontWeight:700, lineHeight:1.05, margin:0, letterSpacing:"-0.025em",
+          textWrap:"balance", maxWidth: 740
+        }}>
+          Elige cómo quieres que se vea tu web.
+        </h1>
+        <p className="vibes-sub" style={{
+          fontSize:16, color:"var(--text-dim)", margin:0, maxWidth:340, lineHeight:1.5
+        }}>
+          Esto que ves abajo es <strong style={{color:"var(--text)"}}>tu web real</strong>, con tus datos.
+          Pulsa cualquiera para previsualizar.
+        </p>
+      </div>
+      <div className="vibes-grid" style={{display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:16}}>
+        {VIBES.map(v => (
+          <VibeCard
+            key={v.id}
+            vibe={v}
+            data={data}
+            selected={data.vibe === v.id}
+            onSelect={() => set("vibe", v.id)}
+          />
+        ))}
+      </div>
+      <div style={{
+        display:"flex", alignItems:"flex-start", gap:12,
+        padding:16,
+        background:"rgba(255,255,255,0.04)",
+        border:"1px solid rgba(255,255,255,0.08)",
+        borderRadius:12,
+        marginTop:24
+      }}>
+        <input
+          type="checkbox"
+          id="legal-accept"
+          checked={legalAccepted}
+          onChange={e => setLegalAccepted(e.target.checked)}
+          style={{
+            width:18, height:18, marginTop:2, flexShrink:0,
+            accentColor:"#7C3AED", cursor:"pointer"
+          }}
+        />
+        <label htmlFor="legal-accept" style={{
+          fontSize:13, color:"rgba(248,248,250,0.6)", lineHeight:1.5, cursor:"pointer"
+        }}>
+          He leído y acepto las{" "}
+          <a href="/terminos-y-condiciones" target="_blank"
+            style={{color:"#C4B5FD", textDecoration:"underline"}}>
+            Condiciones de Uso de la Beta
+          </a>
+          {" "}y la{" "}
+          <a href="/politica-de-privacidad" target="_blank"
+            style={{color:"#C4B5FD", textDecoration:"underline"}}>
+            Política de Privacidad
+          </a>
+          {" "}de mivia.es. Entiendo que es un proyecto experimental sin garantías.
+        </label>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ */
+/* PORTFOLIO STEPS (7, 8, 9)                                    */
+/* ------------------------------------------------------------ */
+function Step7({ data, set }) {
+  return (
+    <StepShell
+      kicker="Tu identidad"
+      icon={<IUser/>}
+      title="¿Cuál es tu nombre completo?"
+      subtitle="Será el titular principal de tu portfolio. Aparece grande, claro, en la primera pantalla."
+    >
+      <div className="mobile-trust-badge" style={{display:"none"}}>
+        ✓ Sin tarjeta · Sin permanencia · Cancela cuando quieras
+      </div>
+      <Field label="Nombre completo">
+        <TextInput
+          value={data.fullName}
+          onChange={v => set("fullName", v)}
+          placeholder="Ej: Laura Martínez, Carlos Ruiz García"
+          autoFocus
+        />
+      </Field>
+    </StepShell>
+  );
+}
+
+function Step8({ data, set }) {
+  return (
+    <StepShell
+      kicker="Tu perfil profesional"
+      icon={<IBriefcase/>}
+      title="¿A qué te dedicas?"
+      subtitle="Tu profesión o especialidad principal. La que quieres que te encuentren buscando."
+    >
+      <Field label="Profesión o especialidad">
+        <TextInput
+          value={data.profession}
+          onChange={v => set("profession", v)}
+          placeholder="Ej: Diseñadora UX/UI, Desarrollador Full Stack, Consultor de Marketing"
+          autoFocus
+        />
+      </Field>
+      <Field label="Ubicación" hint="Opcional. Ciudad, región o «Remoto».">
+        <TextInput
+          value={data.location}
+          onChange={v => set("location", v)}
+          placeholder="Ej: Barcelona, Madrid, Remoto"
+        />
+      </Field>
+      <Field label="Teléfono">
+        <TextInput
+          value={data.phone}
+          onChange={v => set("phone", v)}
+          placeholder="Ej: 612 34 56 78"
+          inputMode="tel"
+          type="tel"
+        />
+      </Field>
+      <Field label="Email" hint="Lo usaremos solo para mandarte tu enlace, nunca para publicidad.">
+        <TextInput
+          value={data.email}
+          onChange={v => set("email", v)}
+          placeholder="Ej: tu@email.com"
+          inputMode="email"
+          type="email"
+        />
+      </Field>
+    </StepShell>
+  );
+}
+
+const PORTFOLIO_TEMPLATES = [
+  {
+    id:"modern",
+    name:"Modern",
+    tagline:"Limpio · Elegante",
+    swatches:["#1d2b3a","#64b5f6","#ffffff"],
+    pitch:"Gradientes y tarjetas. Aspecto tech premium que transmite confianza."
+  },
+  {
+    id:"minimal",
+    name:"Minimal",
+    tagline:"Editorial · Tipográfico",
+    swatches:["#ffffff","#d4a853","#1a1a1a"],
+    pitch:"Blanco, dorado y tipografía serif. Para quien quiere que el trabajo hable solo."
+  },
+  {
+    id:"creative",
+    name:"Creative",
+    tagline:"Industrial · Impacto",
+    swatches:["#0f0f0f","#e8e000","#f5f5f5"],
+    pitch:"Negro y amarillo eléctrico. Tipografía condensada. Imposible de ignorar."
+  },
+];
+
+function PortfolioTemplateCard({ tpl, selected, onSelect }) {
+  const accent = tpl.swatches[0] === '#ffffff' ? tpl.swatches[1] : tpl.swatches[0];
+  const accentRgb = accent.replace('#','').match(/.{2}/g).map(h=>parseInt(h,16)).join(',');
+  return (
+    <button
+      className="card-style"
+      onClick={onSelect}
+      style={{
+        textAlign:"left",
+        background: selected ? `rgba(${accentRgb},0.08)` : "rgba(255,255,255,0.02)",
+        border: selected ? `1px solid rgba(${accentRgb},0.7)` : "1px solid rgba(255,255,255,0.10)",
+        boxShadow: selected ? `0 0 0 1px rgba(${accentRgb},0.3), 0 20px 40px -20px rgba(${accentRgb},0.4)` : "none",
+        borderRadius:18, padding:16, cursor:"pointer", color:"var(--text)",
+        display:"flex", flexDirection:"column", gap:12, flex:1
+      }}>
+      <div style={{
+        height:5, borderRadius:99,
+        background:`linear-gradient(90deg, ${tpl.swatches.join(', ')})`,
+        opacity: selected ? 1 : 0.7
+      }}/>
+      <div>
+        <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", gap:8, marginBottom:4}}>
+          <div className="syne" style={{fontSize:18, fontWeight:700}}>{tpl.name}</div>
+          {selected && <ICheck size={16} stroke={2.5} style={{color:"#C4B5FD"}}/>}
+        </div>
+        <div style={{fontSize:11, color:"var(--text-muted)", letterSpacing:"0.08em", marginBottom:8}}>{tpl.tagline}</div>
+        <div style={{fontSize:13, color:"var(--text-dim)", lineHeight:1.4}}>{tpl.pitch}</div>
+      </div>
+    </button>
+  );
+}
+
+function Step9({ data, set, legalAccepted, setLegalAccepted }) {
+  return (
+    <div className="step-in" style={{
+      maxWidth:900, margin:"0 auto", padding:"40px 28px 28px", width:"100%"
+    }}>
+      <div style={{display:"flex", alignItems:"center", gap:12, marginBottom:14}}>
+        <div style={{
+          width:42, height:42, borderRadius:12, display:"grid", placeItems:"center",
+          background:"linear-gradient(140deg, rgba(124,58,237,0.18), rgba(124,58,237,0.04))",
+          border:"1px solid rgba(124,58,237,0.35)", color:"#C4B5FD"
+        }}>
+          <IPalette/>
+        </div>
+        <div style={{color:"var(--text-muted)", fontSize:13, letterSpacing:"0.18em", textTransform:"uppercase", fontWeight:600}}>
+          El aspecto de tu portfolio
+        </div>
+      </div>
+      <h1 className="syne" style={{
+        fontSize:48, fontWeight:700, lineHeight:1.05, margin:"0 0 10px", letterSpacing:"-0.025em", textWrap:"balance"
+      }}>
+        Elige el estilo visual.
+      </h1>
+      <p style={{fontSize:16, color:"var(--text-dim)", margin:"0 0 28px", lineHeight:1.5, maxWidth:520}}>
+        Tres diseños distintos. Todos optimizados para mostrar tu trabajo de la mejor forma posible.
+      </p>
+      <div style={{display:"flex", gap:16, flexWrap:"wrap", marginBottom:24}}>
+        {PORTFOLIO_TEMPLATES.map(tpl => (
+          <PortfolioTemplateCard
+            key={tpl.id}
+            tpl={tpl}
+            selected={data.portfolioTemplate === tpl.id}
+            onSelect={() => set("portfolioTemplate", tpl.id)}
+          />
+        ))}
+      </div>
+      <div style={{
+        display:"flex", alignItems:"flex-start", gap:12,
+        padding:16,
+        background:"rgba(255,255,255,0.04)",
+        border:"1px solid rgba(255,255,255,0.08)",
+        borderRadius:12
+      }}>
+        <input
+          type="checkbox"
+          id="legal-accept-portfolio"
+          checked={legalAccepted}
+          onChange={e => setLegalAccepted(e.target.checked)}
+          style={{width:18, height:18, marginTop:2, flexShrink:0, accentColor:"#7C3AED", cursor:"pointer"}}
+        />
+        <label htmlFor="legal-accept-portfolio" style={{fontSize:13, color:"rgba(248,248,250,0.6)", lineHeight:1.5, cursor:"pointer"}}>
+          He leído y acepto las{" "}
+          <a href="/terminos-y-condiciones" target="_blank" style={{color:"#C4B5FD", textDecoration:"underline"}}>
+            Condiciones de Uso de la Beta
+          </a>
+          {" "}y la{" "}
+          <a href="/politica-de-privacidad" target="_blank" style={{color:"#C4B5FD", textDecoration:"underline"}}>
+            Política de Privacidad
+          </a>
+          {" "}de mivia.es. Entiendo que es un proyecto experimental sin garantías.
+        </label>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ */
+/* STEP 10 — PORTFOLIO CV UPLOAD                                 */
+/* ------------------------------------------------------------ */
+function Step10Portfolio({ data, set, onSkip }) {
+  const [dragOver, setDragOver] = useState(false);
+  const inputRef = React.useRef(null);
+
+  const handleFile = (file) => {
+    if (!file) return;
+    const allowed = ['application/pdf','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/msword'];
+    if (!allowed.includes(file.type)) {
+      alert('Solo se admiten archivos PDF o DOCX.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert('El archivo supera los 10 MB.');
+      return;
+    }
+    set('cvFile', file);
+  };
+
+  const onDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    handleFile(file);
+  };
+
+  return (
+    <StepShell
+      kicker="Potencia tu portfolio"
+      icon={<ISparkle/>}
+      title="Sube tu CV"
+      subtitle="PDF o DOCX · Máx. 10 MB · Lo analizamos con IA para rellenar tu portfolio automáticamente"
+    >
+      {/* Drop zone */}
+      <div
+        onClick={() => inputRef.current?.click()}
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={onDrop}
+        style={{
+          border: dragOver
+            ? '2px dashed #7C3AED'
+            : data.cvFile
+              ? '2px solid rgba(124,58,237,0.7)'
+              : '2px dashed rgba(255,255,255,0.15)',
+          borderRadius: 18,
+          padding: '42px 28px',
+          textAlign: 'center',
+          cursor: 'pointer',
+          background: dragOver
+            ? 'rgba(124,58,237,0.08)'
+            : data.cvFile
+              ? 'rgba(124,58,237,0.06)'
+              : 'rgba(255,255,255,0.02)',
+          transition: 'border-color .25s, background .25s',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14
+        }}
+      >
+        {/* Icon */}
+        <div style={{
+          width: 56, height: 56, borderRadius: 16,
+          background: data.cvFile
+            ? 'linear-gradient(140deg, rgba(124,58,237,0.3), rgba(124,58,237,0.10))'
+            : 'linear-gradient(140deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02))',
+          border: data.cvFile
+            ? '1px solid rgba(124,58,237,0.5)'
+            : '1px solid rgba(255,255,255,0.10)',
+          display: 'grid', placeItems: 'center',
+          color: data.cvFile ? '#C4B5FD' : 'var(--text-muted)',
+          transition: 'all .25s'
+        }}>
+          {data.cvFile ? <ICheck size={26} stroke={2}/> : <IList size={26} stroke={1.5}/>}
+        </div>
+
+        {data.cvFile ? (
+          <>
+            <div style={{ fontWeight: 600, fontSize: 16, color: 'var(--text)' }}>
+              {data.cvFile.name}
+            </div>
+            <div style={{ fontSize: 13, color: '#86EFC0' }}>
+              ✓ Archivo listo · {(data.cvFile.size / 1024).toFixed(0)} KB
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); set('cvFile', null); }}
+              style={{
+                background: 'transparent', border: '1px solid rgba(255,255,255,0.12)',
+                color: 'var(--text-muted)', padding: '6px 14px', borderRadius: 8,
+                fontSize: 12, cursor: 'pointer', marginTop: 2
+              }}
+            >
+              Cambiar archivo
+            </button>
+          </>
+        ) : (
+          <>
+            <div style={{ fontWeight: 600, fontSize: 16, color: 'var(--text)' }}>
+              Arrastra tu CV aquí
+            </div>
+            <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>
+              o <span style={{ color: '#C4B5FD', textDecoration: 'underline' }}>selecciona un archivo</span>
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: -4 }}>
+              PDF · DOCX · Máx. 10 MB
+            </div>
+          </>
+        )}
+
+        <input
+          ref={inputRef}
+          type="file"
+          accept=".pdf,.doc,.docx"
+          style={{ display: 'none' }}
+          onChange={(e) => handleFile(e.target.files[0])}
+        />
+      </div>
+
+      {/* Skip link */}
+      <div style={{ textAlign: 'center', marginTop: 4 }}>
+        <button
+          onClick={(e) => { e.preventDefault(); onSkip(); }}
+          style={{
+            background: 'transparent', border: 'none',
+            color: 'var(--text-muted)', fontSize: 14, cursor: 'pointer',
+            textDecoration: 'underline', textUnderlineOffset: 3,
+            padding: '4px 0'
+          }}
+        >
+          Saltar este paso — crear portfolio vacío
+        </button>
+      </div>
+    </StepShell>
+  );
+}
+
+/* ------------------------------------------------------------ */
+/* PORTFOLIO SUCCESS SCREEN                                      */
+/* ------------------------------------------------------------ */
+function PortfolioSuccessScreen({ username, activationCode, data }) {
+  const url = `${username}.mivia.es`;
+  const wpNumber = "+34 865 78 22 10";
+  const wpText = encodeURIComponent(`Hola, soy ${data.fullName || "un profesional"} y mi código de activación es ${activationCode}.`);
+  const wpLink = `https://wa.me/34865782210?text=${wpText}`;
+  const [copied, setCopied] = useState(false);
+  const copyCode = () => {
+    try { navigator.clipboard.writeText(activationCode); } catch(e) {}
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1600);
+  };
+  return (
+    <div className="step-in scroll-y" style={{width:"100%", height:"100%", overflowY:"auto"}}>
+      <div style={{maxWidth:780, margin:"0 auto", padding:"56px 28px 80px"}}>
+        <div style={{
+          display:"inline-flex", alignItems:"center", gap:8,
+          padding:"6px 12px", borderRadius:99,
+          background:"rgba(52,211,153,0.10)", border:"1px solid rgba(52,211,153,0.32)",
+          color:"#86EFC0", fontSize:13, fontWeight:600, marginBottom:18
+        }}>
+          <span style={{width:6, height:6, borderRadius:99, background:"#34D399", boxShadow:"0 0 10px #34D399"}}/>
+          Portfolio creado con éxito
+        </div>
+        <h1 className="syne" style={{
+          fontSize:56, fontWeight:700, lineHeight:1.02, margin:"0 0 18px",
+          letterSpacing:"-0.03em", textWrap:"balance"
+        }}>
+          {(data.fullName || "Tu nombre").split(" ")[0]}, ya tienes tu portfolio en internet.
+        </h1>
+        <p style={{fontSize:18, color:"var(--text-dim)", lineHeight:1.55, margin:"0 0 36px", maxWidth:600}}>
+          Falta un último paso: mandar un código por WhatsApp para activarlo. Tarda menos de un minuto.
+        </p>
+        <div style={{
+          padding:"22px 24px", borderRadius:18, marginBottom:18,
+          background:"linear-gradient(180deg, rgba(124,58,237,0.10), rgba(124,58,237,0.02))",
+          border:"1px solid rgba(124,58,237,0.32)"
+        }}>
+          <div style={{fontSize:12, textTransform:"uppercase", letterSpacing:"0.16em", color:"#C4B5FD", fontWeight:600, marginBottom:10}}>
+            La dirección de tu portfolio
+          </div>
+          <div className="mono" style={{fontSize:24, fontWeight:600, color:"var(--text)", letterSpacing:"-0.01em", wordBreak:"break-all"}}>
+            https://<span style={{color:"#C4B5FD"}}>{username}</span>.mivia.es
+          </div>
+          <div style={{marginTop:14, display:"flex", gap:8, flexWrap:"wrap"}}>
+            <a href={`https://${url}`} target="_blank" rel="noreferrer" style={{
+              display:"inline-flex", alignItems:"center", gap:8, padding:"10px 14px", borderRadius:10,
+              background:"rgba(255,255,255,0.06)", border:"1px solid var(--line-2)",
+              color:"var(--text)", textDecoration:"none", fontSize:13, fontWeight:500
+            }}>
+              <IArrow size={14}/> Ver mi portfolio
+            </a>
+          </div>
+        </div>
+        <div style={{
+          padding:"22px 24px", borderRadius:18, marginBottom:18,
+          background:"rgba(255,255,255,0.02)", border:"1px solid var(--line-2)"
+        }}>
+          <div style={{display:"flex", alignItems:"center", gap:10, marginBottom:12}}>
+            <div style={{width:32, height:32, borderRadius:10, display:"grid", placeItems:"center", background:"#22C55E22", color:"#86EFC0", border:"1px solid #22C55E55"}}>
+              <IWhats size={18}/>
+            </div>
+            <div>
+              <div style={{fontSize:15, fontWeight:600}}>Activa tu portfolio por WhatsApp</div>
+              <div style={{fontSize:13, color:"var(--text-muted)"}}>Envíanos este código para que lo pongamos online.</div>
+            </div>
+          </div>
+          <div style={{
+            marginTop:8, padding:"18px 20px", borderRadius:14, background:"#0A0A14",
+            border:"1px dashed rgba(124,58,237,0.5)",
+            display:"flex", alignItems:"center", justifyContent:"space-between", gap:14
+          }}>
+            <div className="mono" style={{fontSize:28, fontWeight:700, letterSpacing:"0.18em", color:"#F8F8FA"}}>
+              {activationCode}
+            </div>
+            <button onClick={copyCode} style={{
+              display:"inline-flex", alignItems:"center", gap:8, padding:"10px 14px", borderRadius:10,
+              background: copied ? "rgba(52,211,153,0.15)" : "rgba(255,255,255,0.06)",
+              border: copied ? "1px solid rgba(52,211,153,0.5)" : "1px solid var(--line-2)",
+              color: copied ? "#86EFC0" : "var(--text)", cursor:"pointer", fontSize:13, fontWeight:500, transition:"all .2s"
+            }}>
+              {copied ? <><ICheck size={14}/> Copiado</> : <><ICopy size={14}/> Copiar código</>}
+            </button>
+          </div>
+          <div style={{
+            marginTop:14, display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, flexWrap:"wrap"
+          }}>
+            <div style={{fontSize:13, color:"var(--text-dim)"}}>
+              Escríbenos al <span className="mono" style={{color:"var(--text)", fontWeight:500}}>{wpNumber}</span>
+            </div>
+            <a href={wpLink} target="_blank" rel="noreferrer" style={{
+              display:"inline-flex", alignItems:"center", gap:8, padding:"12px 18px", borderRadius:12,
+              background:"#25D366", color:"#0A0A14", textDecoration:"none", fontWeight:700, fontSize:14
+            }}>
+              <IWhats size={16}/> Abrir WhatsApp con el código
+            </a>
+          </div>
+        </div>
+        <div style={{padding:"16px 20px", borderRadius:14, background:"rgba(255,255,255,0.015)", border:"1px solid var(--line)", color:"var(--text-dim)", fontSize:13, lineHeight:1.55}}>
+          ¿Quieres añadir proyectos, habilidades o foto de perfil? Escríbenos por WhatsApp y lo hacemos contigo.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ */
+/* GENERATING / SUCCESS                                          */
+/* ------------------------------------------------------------ */
+function GeneratingScreen({ steps, currentIndex, done }) {
+  return (
+    <div className="step-in" style={{
+      maxWidth:680, margin:"0 auto", padding:"100px 28px 32px", width:"100%", textAlign:"left"
+    }}>
+      <div style={{
+        width:54, height:54, borderRadius:16, display:"grid", placeItems:"center",
+        background:"linear-gradient(140deg, #7C3AED 0%, #4C1D95 100%)",
+        boxShadow:"0 20px 60px -16px rgba(124,58,237,0.6), inset 0 0 0 1px rgba(255,255,255,0.1)",
+        marginBottom:24
+      }}>
+        <ISparkle size={26} stroke={2}/>
+      </div>
+      <h1 className="syne" style={{fontSize:42, fontWeight:700, lineHeight:1.05, margin:"0 0 12px", letterSpacing:"-0.025em"}}>
+        {done ? "Tu web está lista." : "Estamos construyendo tu web."}
+      </h1>
+      <p style={{color:"var(--text-dim)", fontSize:16, lineHeight:1.55, marginTop:0, marginBottom:36}}>
+        {done
+          ? "Solo queda un pequeño paso para activarla."
+          : "Dura menos que un café. No cierres esta ventana."}
+      </p>
+
+      <div style={{display:"flex", flexDirection:"column", gap:14}}>
+        {steps.map((s, i) => {
+          const isDone = i < currentIndex || done;
+          const isCurrent = i === currentIndex && !done;
+          return (
+            <div key={s.label} style={{
+              display:"flex", alignItems:"center", gap:14,
+              padding:"14px 18px", borderRadius:14,
+              background: isCurrent ? "rgba(124,58,237,0.07)" : "rgba(255,255,255,0.02)",
+              border: isCurrent ? "1px solid rgba(124,58,237,0.35)" : "1px solid var(--line)",
+              transition:"all .35s"
+            }}>
+              <div style={{
+                width:26, height:26, borderRadius:99, flexShrink:0,
+                display:"grid", placeItems:"center",
+                background: isDone ? "var(--ok)" : isCurrent ? "rgba(124,58,237,0.18)" : "rgba(255,255,255,0.05)",
+                color: isDone ? "#062E1F" : isCurrent ? "#C4B5FD" : "var(--text-muted)",
+                border: isCurrent ? "1px solid rgba(124,58,237,0.4)" : "none"
+              }}>
+                {isDone
+                  ? <ICheck size={14} stroke={3}/>
+                  : isCurrent
+                    ? <div style={{width:8, height:8, borderRadius:99, background:"#C4B5FD", boxShadow:"0 0 12px #C4B5FD"}}/>
+                    : <div style={{width:6, height:6, borderRadius:99, background:"currentColor"}}/>}
+              </div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:15, fontWeight: isCurrent ? 600 : 500, color: isDone || isCurrent ? "var(--text)" : "var(--text-muted)"}}>
+                  {s.label}
+                </div>
+                {isCurrent && (
+                  <div style={{
+                    marginTop:6, height:2, borderRadius:99, overflow:"hidden",
+                    background:"rgba(124,58,237,0.18)"
+                  }}>
+                    <div style={{
+                      width:"40%", height:"100%",
+                      background:"linear-gradient(90deg, transparent, #A78BFA, transparent)",
+                      animation:"loaderSweep 1.6s linear infinite"
+                    }}/>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function SuccessScreen({ username, activationCode, vibe, data }) {
+  const url = `${username}.mivia.es`;
+  const wpNumber = "+34 865 78 22 10";
+  const wpText = encodeURIComponent(`Hola, soy ${data.name || "un autónomo"} y mi código de activación es ${activationCode}.`);
+  const wpLink = `https://wa.me/34865782210?text=${wpText}`;
+
+  const [copied, setCopied] = useState(false);
+  const copyCode = () => {
+    try { navigator.clipboard.writeText(activationCode); } catch(e){}
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1600);
+  };
+
+  const vibeObj = VIBES.find(v => v.id === vibe) || VIBES[0];
+
+  return (
+    <div className="step-in scroll-y" style={{
+      width:"100%", height:"100%", overflowY:"auto"
+    }}>
+      <div style={{maxWidth:1100, margin:"0 auto", padding:"56px 28px 80px"}}>
+
+        <div style={{
+          display:"inline-flex", alignItems:"center", gap:8,
+          padding:"6px 12px", borderRadius:99,
+          background:"rgba(52,211,153,0.10)",
+          border:"1px solid rgba(52,211,153,0.32)",
+          color:"#86EFC0", fontSize:13, fontWeight:600,
+          marginBottom:18
+        }}>
+          <span style={{width:6, height:6, borderRadius:99, background:"#34D399", boxShadow:"0 0 10px #34D399"}}/>
+          Web creada con éxito
+        </div>
+
+        <h1 className="syne" style={{
+          fontSize: 56, fontWeight:700, lineHeight:1.02, margin:"0 0 18px",
+          letterSpacing:"-0.03em", textWrap:"balance", maxWidth: 880
+        }}>
+          {(data.name || "Tu negocio").split(" ")[0]}, ya tienes tu sitio en internet.
+        </h1>
+        <p style={{
+          fontSize:18, color:"var(--text-dim)", lineHeight:1.55, margin:"0 0 40px", maxWidth:680
+        }}>
+          Falta un último paso: mandar un código por WhatsApp para activarla.
+          Es para confirmar que es tuya. Tarda menos de un minuto.
+        </p>
+
+        <div style={{display:"grid", gridTemplateColumns:"1.05fr 0.95fr", gap:28, alignItems:"start"}}>
+          {/* LEFT — URL + ACTIVATION */}
+          <div style={{display:"flex", flexDirection:"column", gap:18}}>
+
+            {/* URL */}
+            <div style={{
+              padding:"22px 24px", borderRadius:18,
+              background:"linear-gradient(180deg, rgba(124,58,237,0.10), rgba(124,58,237,0.02))",
+              border:"1px solid rgba(124,58,237,0.32)"
+            }}>
+              <div style={{fontSize:12, textTransform:"uppercase", letterSpacing:"0.16em", color:"#C4B5FD", fontWeight:600, marginBottom:10}}>
+                La dirección de tu web
+              </div>
+              <div className="mono" style={{
+                fontSize:24, fontWeight:600, color:"var(--text)", letterSpacing:"-0.01em",
+                wordBreak:"break-all"
+              }}>
+                https://<span style={{color:"#C4B5FD"}}>{username}</span>.mivia.es
+              </div>
+              <div style={{
+                marginTop:14, display:"flex", gap:8, flexWrap:"wrap"
+              }}>
+                <a href={`https://${url}`} target="_blank" rel="noreferrer" style={{
+                  display:"inline-flex", alignItems:"center", gap:8,
+                  padding:"10px 14px", borderRadius:10,
+                  background:"rgba(255,255,255,0.06)",
+                  border:"1px solid var(--line-2)",
+                  color:"var(--text)", textDecoration:"none", fontSize:13, fontWeight:500
+                }}>
+                  <IArrow size={14}/> Ver mi web
+                </a>
+                <button onClick={() => { try{navigator.clipboard.writeText("https://"+url);}catch(e){} }} style={{
+                  display:"inline-flex", alignItems:"center", gap:8,
+                  padding:"10px 14px", borderRadius:10,
+                  background:"transparent",
+                  border:"1px solid var(--line-2)",
+                  color:"var(--text-dim)", cursor:"pointer", fontSize:13
+                }}>
+                  <ICopy size={14}/> Copiar enlace
+                </button>
+              </div>
+            </div>
+
+            {/* Activation */}
+            <div style={{
+              padding:"22px 24px", borderRadius:18,
+              background:"rgba(255,255,255,0.02)",
+              border:"1px solid var(--line-2)"
+            }}>
+              <div style={{display:"flex", alignItems:"center", gap:10, marginBottom:12}}>
+                <div style={{
+                  width:32, height:32, borderRadius:10, display:"grid", placeItems:"center",
+                  background:"#22C55E22", color:"#86EFC0", border:"1px solid #22C55E55"
+                }}>
+                  <IWhats size={18}/>
+                </div>
+                <div>
+                  <div style={{fontSize:15, fontWeight:600}}>Activa tu web por WhatsApp</div>
+                  <div style={{fontSize:13, color:"var(--text-muted)"}}>Envíanos este código para que la pongamos online.</div>
+                </div>
+              </div>
+
+              <div style={{
+                marginTop:8,
+                padding:"18px 20px", borderRadius:14,
+                background:"#0A0A14",
+                border:"1px dashed rgba(124,58,237,0.5)",
+                display:"flex", alignItems:"center", justifyContent:"space-between", gap:14
+              }}>
+                <div className="mono" style={{
+                  fontSize:28, fontWeight:700, letterSpacing:"0.18em",
+                  color:"#F8F8FA"
+                }}>
+                  {activationCode}
+                </div>
+                <button onClick={copyCode} style={{
+                  display:"inline-flex", alignItems:"center", gap:8,
+                  padding:"10px 14px", borderRadius:10,
+                  background: copied ? "rgba(52,211,153,0.15)" : "rgba(255,255,255,0.06)",
+                  border: copied ? "1px solid rgba(52,211,153,0.5)" : "1px solid var(--line-2)",
+                  color: copied ? "#86EFC0" : "var(--text)", cursor:"pointer", fontSize:13, fontWeight:500,
+                  transition:"all .2s"
+                }}>
+                  {copied ? <><ICheck size={14}/> Copiado</> : <><ICopy size={14}/> Copiar código</>}
+                </button>
+              </div>
+
+              <div style={{
+                marginTop:14,
+                display:"flex", alignItems:"center", justifyContent:"space-between",
+                gap:12, flexWrap:"wrap"
+              }}>
+                <div style={{fontSize:13, color:"var(--text-dim)"}}>
+                  Escríbenos al <span className="mono" style={{color:"var(--text)", fontWeight:500}}>{wpNumber}</span>
+                </div>
+                <a href={wpLink} target="_blank" rel="noreferrer" style={{
+                  display:"inline-flex", alignItems:"center", gap:8,
+                  padding:"12px 18px", borderRadius:12,
+                  background:"#25D366", color:"#0A0A14", textDecoration:"none",
+                  fontWeight:700, fontSize:14
+                }}>
+                  <IWhats size={16}/> Abrir WhatsApp con el código
+                </a>
+              </div>
+            </div>
+
+            <div style={{
+              padding:"16px 20px", borderRadius:14,
+              background:"rgba(255,255,255,0.015)",
+              border:"1px solid var(--line)",
+              color:"var(--text-dim)", fontSize:13, lineHeight:1.55
+            }}>
+              ¿Quieres cambiar algo? Solo escríbelo por WhatsApp ("cambia el teléfono", "añade otro servicio")
+              y lo hacemos por ti. Nada de paneles complicados.
+            </div>
+          </div>
+
+          {/* RIGHT — preview of the final site */}
+          <div>
+            <div style={{
+              borderRadius:18, overflow:"hidden",
+              border:"1px solid var(--line-2)",
+              background:"#000",
+              boxShadow:"0 30px 80px -30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04)"
+            }}>
+              <div style={{
+                height:30, display:"flex", alignItems:"center", gap:6, padding:"0 12px",
+                background:"rgba(255,255,255,0.04)", borderBottom:"1px solid var(--line)"
+              }}>
+                <span style={{width:9, height:9, borderRadius:99, background:"#3A3A45"}}/>
+                <span style={{width:9, height:9, borderRadius:99, background:"#3A3A45"}}/>
+                <span style={{width:9, height:9, borderRadius:99, background:"#3A3A45"}}/>
+                <div className="mono" style={{
+                  flex:1, marginLeft:12, fontSize:11, color:"var(--text-muted)",
+                  background:"rgba(0,0,0,0.3)", padding:"4px 10px", borderRadius:6,
+                  border:"1px solid var(--line)"
+                }}>{url}</div>
+              </div>
+              <div style={{aspectRatio:"16/11"}}>
+                <MiniSiteRender vibe={vibeObj} data={data}/>
+              </div>
+            </div>
+            <div style={{
+              marginTop:14, fontSize:13, color:"var(--text-muted)", textAlign:"center"
+            }}>
+              Vista previa · Estilo <strong style={{color:"var(--text)"}}>{vibeObj.name}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ */
+/* FOOTER NAV (CTA bar)                                          */
+/* ------------------------------------------------------------ */
+function FooterBar({ step, total, onNext, onBack, ctaLabel, canContinue, helper }) {
+  return (
+    <footer className="footer-bar" style={{
+      position:"relative", zIndex:5,
+      borderTop:"1px solid var(--line)",
+      background:"linear-gradient(180deg, rgba(9,9,14,0.4), rgba(9,9,14,0.92))",
+      backdropFilter:"blur(10px)",
+      padding:"16px 28px",
+      display:"flex", alignItems:"center", justifyContent:"space-between", gap:18
+    }}>
+      <div className="footer-helper" style={{color:"var(--text-muted)", fontSize:13, display:"flex", alignItems:"center", gap:10, minWidth:240}}>
+        {helper}
+      </div>
+      <div className="footer-hint" style={{
+        color:"var(--text-muted)", fontSize:12, letterSpacing:"0.16em", textTransform:"uppercase"
+      }}>
+        Pulsa <span className="mono" style={{
+          padding:"3px 7px", border:"1px solid var(--line-2)", borderRadius:6,
+          color:"var(--text-dim)", marginLeft:4
+        }}>Enter ↵</span> para continuar
+      </div>
+      <div style={{display:"flex", alignItems:"center", gap:10}}>
+        <button
+          onClick={onNext}
+          disabled={!canContinue}
+          style={{
+            display:"inline-flex", alignItems:"center", gap:10,
+            padding:"14px 24px",
+            background: canContinue
+              ? "linear-gradient(140deg, #7C3AED, #6D28D9)"
+              : "rgba(124,58,237,0.18)",
+            color: canContinue ? "#fff" : "rgba(255,255,255,0.45)",
+            border:"none", borderRadius:12, cursor: canContinue ? "pointer" : "not-allowed",
+            fontSize:15, fontWeight:600, letterSpacing:"-0.01em",
+            boxShadow: canContinue
+              ? "0 12px 36px -10px rgba(124,58,237,0.7), inset 0 1px 0 rgba(255,255,255,0.18)"
+              : "none",
+            transition:"transform .15s, box-shadow .25s"
+          }}
+          onMouseDown={e => canContinue && (e.currentTarget.style.transform = "translateY(1px)")}
+          onMouseUp={e => (e.currentTarget.style.transform = "translateY(0)")}
+        >
+          {ctaLabel}
+          <IArrow size={16}/>
+        </button>
+      </div>
+    </footer>
+  );
+}
+
+/* ------------------------------------------------------------ */
+/* MAIN APP                                                      */
+/* ------------------------------------------------------------ */
+function App() {
+  const [step, setStep] = useState(0);
+  const [data, setData] = useState({
+    // shared
+    type: "",           // "local" | "portfolio"
+    // local business
+    name: "",
+    city: "",
+    description: "",
+    services: ["","",""],
+    phone: "",
+    email: "",
+    vibe: "elegant",
+    // portfolio
+    fullName: "",
+    profession: "",
+    location: "",
+    portfolioTemplate: "modern",
+    cvFile: null,
+  });
+  const [phase, setPhase] = useState("steps"); // "steps" | "generating" | "success"
+  const [genIndex, setGenIndex] = useState(0);
+  const [genDone, setGenDone] = useState(false);
+  const [result, setResult] = useState(null);
+  const [legalAccepted, setLegalAccepted] = useState(false);
+
+  const set = (k, v) => setData(d => ({...d, [k]: v}));
+
+  const isPortfolio = data.type === "portfolio";
+  // Total progress segments: portfolio=5 (steps 0,7,8,9,10), local=7 (steps 0-6)
+  const TOTAL = isPortfolio ? 5 : 7;
+
+  // Map raw step to 1-based progress position
+  const progressStep = useMemo(() => {
+    if (isPortfolio) {
+      if (step === 0)  return 1;
+      if (step === 10) return 5;
+      return step - 5; // 7→2, 8→3, 9→4
+    }
+    return step + 1; // 0→1, 1→2, ..., 6→7
+  }, [step, isPortfolio]);
+
+  /* Validation per step */
+  const canContinue = useMemo(() => {
+    if (step === 0) return !!data.type;
+    // Local business steps
+    if (step === 1) return data.name.trim().length > 1 && data.city.trim().length > 1;
+    if (step === 2) return data.services.filter(s => s.trim().length > 1).length >= 2;
+    if (step === 3) return data.description.trim().length > 8;
+    if (step === 4) {
+      const phoneOk = data.phone.replace(/\D/g,"").length >= 9;
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
+      return phoneOk && emailOk;
+    }
+    if (step === 5) return true;
+    if (step === 6) return !!data.vibe && legalAccepted;
+    // Portfolio steps
+    if (step === 7)  return data.fullName.trim().length > 1;
+    if (step === 8) {
+      const phoneOk = data.phone.replace(/\D/g,"").length >= 9;
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
+      return data.profession.trim().length > 1 && phoneOk && emailOk;
+    }
+    if (step === 9)  return !!data.portfolioTemplate && legalAccepted;
+    if (step === 10) return !!data.cvFile; // footer CTA only active when a file is chosen
+    return false;
+  }, [step, data, legalAccepted]);
+
+  /* CTA per step */
+  const ctaLabel = useMemo(() => {
+    if (step === 0) return data.type ? "Continuar" : "Elegir tipo";
+    if (step === 1) return "Vamos allá";
+    if (step === 4) return "Casi listo";
+    if (step === 5) return "Elegir el estilo";
+    if (step === 6) return "¡Crear mi web!";
+    if (step === 7)  return "Siguiente";
+    if (step === 8)  return "Elegir estilo";
+    if (step === 9)  return "Subir CV";
+    if (step === 10) return "Analizar y crear portfolio →";
+    return "Siguiente";
+  }, [step, data.type]);
+
+  const helper = useMemo(() => {
+    if (step === 0) return <>Elige el tipo de web que quieres crear.</>;
+    if (step === 1) return <>Solo dos campos para empezar.</>;
+    if (step === 4) return <>Usaremos tu email solo para mandarte el enlace.</>;
+    if (step === 6)  return <>Podrás cambiar el estilo más adelante.</>;
+    if (step === 9)  return <>Elige plantilla y acepta los términos para continuar.</>;
+    if (step === 10) return <>La IA rellenará tu bio, skills y experiencia automáticamente.</>;
+    return <>Tus datos se guardan al avanzar.</>;
+  }, [step]);
+
+  const next = () => {
+    if (!canContinue) return;
+    if (step === 0) {
+      setStep(isPortfolio ? 7 : 1);
+    } else if (isPortfolio) {
+      if (step < 9)  setStep(s => s + 1);
+      else if (step === 9) setStep(10); // go to CV upload
+      else submit();                     // step === 10, file chosen → submit
+    } else {
+      if (step < 6) setStep(s => s + 1);
+      else submit();
+    }
+  };
+
+  // Skip CV upload — clear file and submit directly
+  const skipCV = () => {
+    set('cvFile', null);
+    submit();
+  };
+
+  const back = () => {
+    if (step === 0)  return;
+    if (step === 7)  { setStep(0); return; }
+    if (step === 1)  { setStep(0); return; }
+    if (step === 10) { setStep(9); return; }  // back from CV → template
+    setStep(s => s - 1);
+  };
+
+  /* Submit — branches on type, and on cvFile for portfolios */
+  const submit = async () => {
+    setPhase("generating");
+    setGenIndex(0);
+    setGenDone(false);
+
+    const isPort = data.type === "portfolio";
+
+    // ── Local business — unchanged ─────────────────────────────────────────
+    if (!isPort) {
+      const vibeMap = { elegant: "classic", warm: "warm", modern: "modern", brutal: "artisan" };
+      const stepsGen = [
+        { label: "Analizando tu negocio",          ms: 2200 },
+        { label: "Eligiendo paleta y tipografía",  ms: 2200 },
+        { label: "Seleccionando fotografías",       ms: 2200 },
+        { label: "Maquetando tu web",              ms: 2200 },
+        { label: "Publicando en mivia.es",         ms: 1800 },
+      ];
+      const apiCall = fetch("/api/profile/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          businessName:  data.name.trim(),
+          city:          data.city.trim(),
+          services:      data.services.filter(Boolean).join(", "),
+          trustReason:   data.description.trim(),
+          contactPhone:  data.phone.trim(),
+          vibe:          vibeMap[data.vibe] || "modern",
+          legalAcceptedAt: new Date().toISOString(),
+        })
+      }).then(r => r.json());
+
+      let i = 0;
+      for (const s of stepsGen) { setGenIndex(i); await new Promise(r => setTimeout(r, s.ms)); i++; }
+
+      let apiRes;
+      try { apiRes = await apiCall; }
+      catch (err) { console.error("Error:", err); apiRes = { error: "Error de red" }; }
+
+      if (!apiRes || apiRes.error) {
+        alert("Error al crear: " + (apiRes?.error || "inténtalo de nuevo"));
+        setPhase("steps"); setStep(6); return;
+      }
+      setGenIndex(i); setGenDone(true);
+      setResult({ username: apiRes.username, activationCode: apiRes.activationCode, isPortfolio: false });
+      await new Promise(r => setTimeout(r, 500));
+      setPhase("success");
+      return;
+    }
+
+    // ── Portfolio ──────────────────────────────────────────────────────────
+    const hasCv = !!data.cvFile;
+
+    // Animation steps differ by sub-flow
+    const stepsGen = hasCv
+      ? [
+          { label: "Creando tu portfolio",      ms: 1800 },
+          { label: "Analizando tu CV con IA",   ms: 3200 },
+          { label: "Publicando en mivia.es",    ms: 1200 },
+        ]
+      : [
+          { label: "Creando tu portfolio",      ms: 1800 },
+          { label: "Configurando el diseño",    ms: 1800 },
+          { label: "Publicando en mivia.es",    ms: 1400 },
+        ];
+
+    // ── Step 1: create Business + Portfolio base ───────────────────────────
+    const createCall = fetch("/api/portfolio/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName:        data.fullName.trim(),
+        profession:      data.profession.trim(),
+        location:        data.location.trim() || undefined,
+        email:           data.email.trim(),
+        phone:           data.phone.trim(),
+        bio:             "",
+        template:        data.portfolioTemplate,
+        legalAcceptedAt: new Date().toISOString(),
+      })
+    }).then(r => r.json());
+
+    // Run first animation step while API call is in flight
+    setGenIndex(0);
+    await new Promise(r => setTimeout(r, stepsGen[0].ms));
+
+    let createRes;
+    try { createRes = await createCall; }
+    catch (err) { console.error("[portfolio/create] Error:", err); createRes = { error: "Error de red" }; }
+
+    if (!createRes || createRes.error) {
+      alert("Error al crear el portfolio: " + (createRes?.error || "inténtalo de nuevo"));
+      setPhase("steps"); setStep(10); return;
+    }
+
+    const { username, activationCode } = createRes;
+    // /api/portfolio/create now exposes businessId — used for the CV upload step
+    const businessId = createRes.businessId ?? null;
+
+    // ── Step 2 (Flow B): upload CV if present ─────────────────────────────
+    if (hasCv) {
+      setGenIndex(1); // "Analizando tu CV con IA..."
+
+      if (businessId) {
+        try {
+          const formData = new FormData();
+          formData.append("file", data.cvFile);
+          formData.append("businessId", businessId);
+
+          // Fire upload concurrently with the animation timer
+          const uploadPromise = fetch("/api/portfolio/upload-cv", {
+            method: "POST",
+            body: formData,
+          }).then(r => r.json());
+
+          await new Promise(r => setTimeout(r, stepsGen[1].ms));
+          const uploadRes = await uploadPromise;
+
+          if (uploadRes?.error) {
+            console.warn("[upload-cv] Error (non-fatal):", uploadRes.error);
+          }
+        } catch (err) {
+          // Non-fatal — portfolio already created
+          console.warn("[upload-cv] Network error (non-fatal):", err);
+        }
+      } else {
+        // businessId not available — wait out the animation and continue
+        console.warn("[upload-cv] businessId missing in create response — skipping CV upload");
+        await new Promise(r => setTimeout(r, stepsGen[1].ms));
+      }
+    }
+
+    // ── Final animation step ───────────────────────────────────────────────
+    const finalIdx = hasCv ? 2 : 1;
+    setGenIndex(finalIdx);
+    await new Promise(r => setTimeout(r, stepsGen[hasCv ? 2 : 1].ms));
+
+    setGenIndex(stepsGen.length);
+    setGenDone(true);
+    setResult({ username, activationCode, isPortfolio: true });
+    await new Promise(r => setTimeout(r, 500));
+    setPhase("success");
+  };
+
+  /* Enter key advances */
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Enter" && phase === "steps" && !(e.target?.tagName === "TEXTAREA")) {
+        e.preventDefault(); next();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
+  const restart = () => {
+    setPhase("steps"); setStep(0); setGenIndex(0); setGenDone(false); setResult(null);
+    setData({ type:"", name:"", city:"", description:"", services:["","",""], phone:"", email:"", vibe:"elegant", fullName:"", profession:"", location:"", portfolioTemplate:"modern", cvFile: null });
+    setLegalAccepted(false);
+  };
+
+  const generationSteps = result?.isPortfolio
+    ? [
+        { label: "Creando tu portfolio" },
+        { label: "Configurando el diseño" },
+        { label: "Publicando en mivia.es" },
+      ]
+    : [
+        { label: "Analizando tu negocio" },
+        { label: "Eligiendo paleta y tipografía" },
+        { label: "Seleccionando fotografías" },
+        { label: "Maquetando tu web" },
+        { label: "Publicando en mivia.es" },
+      ];
+
+  // Determine generation steps to show while generating (before result is set)
+  const activeGenSteps = data.type === "portfolio"
+    ? (data.cvFile
+        ? [
+            { label: "Creando tu portfolio" },
+            { label: "Analizando tu CV con IA" },
+            { label: "Publicando en mivia.es" },
+          ]
+        : [
+            { label: "Creando tu portfolio" },
+            { label: "Configurando el diseño" },
+            { label: "Publicando en mivia.es" },
+          ]
+      )
+    : [
+        { label: "Analizando tu negocio" },
+        { label: "Eligiendo paleta y tipografía" },
+        { label: "Seleccionando fotografías" },
+        { label: "Maquetando tu web" },
+        { label: "Publicando en mivia.es" },
+      ];
+
+  return (
+    <div className="onboarding-root" style={{
+      position:"relative", zIndex:2,
+      minHeight:"100vh", display:"flex", flexDirection:"column"
+    }}>
+      {phase === "steps" && (
+        <Topbar
+          step={progressStep}
+          total={TOTAL}
+          onBack={back}
+        />
+      )}
+      {phase !== "steps" && (
+        <header style={{
+          position:"relative", zIndex:5,
+          display:"flex", alignItems:"center", justifyContent:"space-between",
+          padding:"20px 28px",
+          borderBottom:"1px solid var(--line)"
+        }}>
+          <Logo/>
+          {phase === "success" && (
+            <button onClick={restart} style={{
+              background:"transparent", border:"1px solid var(--line)",
+              color:"var(--text-dim)", padding:"8px 12px", borderRadius:10,
+              fontSize:13, cursor:"pointer"
+            }}>Ver el flujo otra vez</button>
+          )}
+        </header>
+      )}
+
+      <main key={`${phase}-${step}`} className="step-main" style={{
+        flex:1, position:"relative", overflowY:"auto", display:"flex", flexDirection:"column"
+      }}>
+        {phase === "steps" && (
+          <>
+            {step === 0 && <Step0 data={data} set={set}/>}
+            {step === 1 && <Step1 data={data} set={set}/>}
+            {step === 2 && <Step2 data={data} set={set}/>}
+            {step === 3 && <Step3 data={data} set={set}/>}
+            {step === 4 && <Step4 data={data} set={set}/>}
+            {step === 5 && <Step5 data={data}/>}
+            {step === 6 && <Step6 data={data} set={set} legalAccepted={legalAccepted} setLegalAccepted={setLegalAccepted}/>}
+            {step === 7  && <Step7 data={data} set={set}/>}
+            {step === 8  && <Step8 data={data} set={set}/>}
+            {step === 9  && <Step9 data={data} set={set} legalAccepted={legalAccepted} setLegalAccepted={setLegalAccepted}/>}
+            {step === 10 && <Step10Portfolio data={data} set={set} onSkip={skipCV}/>}
+          </>
+        )}
+        {phase === "generating" && (
+          <GeneratingScreen
+            steps={activeGenSteps}
+            currentIndex={genIndex}
+            done={genDone}
+          />
+        )}
+        {phase === "success" && result && (
+          result.isPortfolio
+            ? <PortfolioSuccessScreen
+                username={result.username}
+                activationCode={result.activationCode}
+                data={data}
+              />
+            : <SuccessScreen
+                username={result.username}
+                activationCode={result.activationCode}
+                vibe={data.vibe}
+                data={data}
+              />
+        )}
+      </main>
+
+      {phase === "steps" && (
+        <FooterBar
+          step={progressStep}
+          total={TOTAL}
+          onNext={next}
+          onBack={back}
+          ctaLabel={ctaLabel}
+          canContinue={canContinue}
+          helper={helper}
+        />
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
