@@ -76,3 +76,11 @@ Thumbs.db
 .vscode/
 .idea/
 
+
+# Local scratch / sesiones efímeras
+backups/
+backup_templates_original/
+test-webhook.js
+CONTEXT_*.md
+SESSION_SUMMARY_*.md
+NEXT_CHAT_BRIEFING.md
