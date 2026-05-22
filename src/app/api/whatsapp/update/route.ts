@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai'
 import { sendWhatsAppMessage } from '@/lib/whatsapp'
 import { fetchUnsplashPhoto } from '@/lib/unsplash'
@@ -251,6 +252,107 @@ export async function POST(req: NextRequest) {
       where: { phone: normalizedFrom, isDeleted: false },
       include: { profile: true, portfolio: true }
     })
+
+    // ── APROBACIÓN / RECHAZO DE BORRADOR GEMINI ───────────────────────────────
+    if (business && business.status === 'pending') {
+      const textLower = messageText ? messageText.toLowerCase().trim() : ''
+
+      if (textLower === 'aprobar web' || messageText === 'approve_web') {
+        const draft = await prisma.geminiDraft.findUnique({ where: { businessId: business.id } })
+
+        if (draft && draft.status === 'PENDING') {
+          const payload = draft.payload as {
+            type: 'PROFILE' | 'PORTFOLIO'
+            originalInput: Record<string, unknown>
+            geminiOutput: Record<string, unknown>
+          }
+
+          try {
+            await prisma.$transaction(async (tx) => {
+              if (payload.type === 'PROFILE') {
+                const input = payload.originalInput as {
+                  businessName: string
+                  city: string
+                  services: unknown
+                  trustReason: string
+                  vibe?: string
+                }
+                await tx.profile.create({
+                  data: {
+                    businessId: business.id,
+                    name: input.businessName,
+                    city: input.city,
+                    services: input.services as Prisma.InputJsonValue,
+                    trustReason: input.trustReason,
+                    contactPhone: business.phone,
+                    content: payload.geminiOutput as Prisma.InputJsonValue,
+                    ...(input.vibe ? { vibe: input.vibe } : {}),
+                  },
+                })
+              } else if (payload.type === 'PORTFOLIO') {
+                const input = payload.originalInput as {
+                  fullName: string
+                  profession: string
+                  bio: string
+                  location?: string
+                  template?: string
+                }
+                await tx.portfolio.create({
+                  data: {
+                    businessId: business.id,
+                    name: input.fullName,
+                    profession: input.profession,
+                    bio: input.bio ?? '',
+                    location: input.location ?? null,
+                    skills: [],
+                    content: payload.geminiOutput as Prisma.InputJsonValue,
+                    ...(input.template ? { template: input.template } : {}),
+                  },
+                })
+              }
+
+              await tx.geminiDraft.update({
+                where: { id: draft.id },
+                data: { status: 'APPROVED' },
+              })
+              await tx.business.update({
+                where: { id: business.id },
+                data: { status: 'active', activationCode: null },
+              })
+            })
+
+            const webUrl = payload.type === 'PORTFOLIO'
+              ? `https://${business.username}.mivia.es/p/${business.username}`
+              : `https://${business.username}.mivia.es`
+
+            await sendWhatsAppMessage({
+              to: from,
+              text: `✅ ¡Tu web ha sido publicada con éxito! Ya puedes verla en: ${webUrl}`,
+            })
+          } catch (err) {
+            console.error('[Approve web] Transaction failed:', err)
+            await sendWhatsAppMessage({
+              to: from,
+              text: '❌ Ha ocurrido un error al publicar tu web. Inténtalo de nuevo en unos segundos.',
+            })
+          }
+
+          return NextResponse.json({ success: true })
+        }
+      }
+
+      if (textLower === 'rechazar web' || messageText === 'reject_web') {
+        await prisma.geminiDraft.updateMany({
+          where: { businessId: business.id, status: 'PENDING' },
+          data: { status: 'REJECTED' },
+        })
+        await sendWhatsAppMessage({
+          to: from,
+          text: '📝 Entendido. ¿Qué te gustaría cambiar? Escribe los cambios y generaré una nueva versión.',
+        })
+        return NextResponse.json({ success: true })
+      }
+    }
 
     // ── GESTIÓN DE CUENTAS PENDIENTES (WEB) ───────────────────────────────────
     if (business && business.status === 'pending') {

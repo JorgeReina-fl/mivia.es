@@ -4,12 +4,12 @@ services:
     container_name: mivia-postgres
     environment:
       POSTGRES_USER: mivia
-      POSTGRES_PASSWORD: mivia2024secure
+      POSTGRES_PASSWORD: ${MIVIA_DB_PASSWORD}
       POSTGRES_DB: mivia
     volumes:
       - mivia_postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     networks:
       - mivia-network
     restart: unless-stopped
@@ -18,7 +18,7 @@ services:
     build: .
     container_name: mivia-app
     environment:
-      DATABASE_URL: postgresql://mivia:mivia2024secure@postgres-db:5432/mivia
+      DATABASE_URL: postgresql://mivia:${MIVIA_DB_PASSWORD}@postgres-db:5432/mivia
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
@@ -27,7 +27,13 @@ services:
       TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
       TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
       TWILIO_WHATSAPP_FROM: ${TWILIO_WHATSAPP_FROM}
+      WHATSAPP_ACCESS_TOKEN: ${WHATSAPP_ACCESS_TOKEN}
+      WHATSAPP_PHONE_NUMBER_ID: ${WHATSAPP_PHONE_NUMBER_ID}
+      WHATSAPP_VERIFY_TOKEN: ${WHATSAPP_VERIFY_TOKEN}
       NEXT_PUBLIC_BASE_DOMAIN: ${NEXT_PUBLIC_BASE_DOMAIN}
+      CRON_SECRET: ${CRON_SECRET}
+      SESSION_SECRET: ${SESSION_SECRET}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     ports:
       - "3001:3000"
     depends_on:
