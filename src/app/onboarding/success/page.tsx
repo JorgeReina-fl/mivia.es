@@ -1,6 +1,7 @@
 'use client'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
+import Link from 'next/link'
 
 function SuccessContent() {
   const searchParams = useSearchParams()
@@ -49,9 +50,44 @@ function SuccessContent() {
           </a>
         </div>
 
-        <div className="text-sm text-gray-500">
-          <p className="mb-2">Tu web estará disponible en: <strong className="text-blue-700">{webUrl}</strong></p>
-          <p>Una vez activada, podrás actualizarla enviando mensajes por WhatsApp</p>
+        <div className="space-y-4">
+          <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+            <p className="text-sm text-gray-600 mb-2">Tu web estará disponible en:</p>
+            <a
+              href={webUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-lg font-bold text-blue-700 hover:text-blue-900 underline decoration-2 underline-offset-4 hover:decoration-blue-900 transition-all duration-200 break-all"
+            >
+              {webUrl}
+            </a>
+            <p className="text-xs text-gray-500 mt-3">
+              ⚠️ La web se activará cuando recibas el código por WhatsApp
+            </p>
+          </div>
+
+          <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6">
+            <div className="flex items-start gap-3">
+              <div className="text-2xl">💬</div>
+              <div>
+                <p className="font-semibold text-gray-900 mb-1">
+                  ¿Quieres cambiar algo después?
+                </p>
+                <p className="text-sm text-gray-600">
+                  Una vez activada, podrás actualizar tu web enviando mensajes por WhatsApp. Es tan fácil como chatear con un amigo.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center pt-4">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-all duration-200 active:scale-95"
+            >
+              ← Volver al inicio
+            </Link>
+          </div>
         </div>
       </div>
     </div>

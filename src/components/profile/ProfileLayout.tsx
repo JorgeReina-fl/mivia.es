@@ -1,105 +1,181 @@
 'use client'
-import { useState } from 'react'
-import { MessageCircle, Menu, X } from 'lucide-react'
-import { DesignPreset } from '@/lib/design-presets'
-import Hero from './Hero'
-import Services from './Services'
-import Trust from './Trust'
-import Testimonials from './Testimonials'
-import Contact from './Contact'
-import Map from './Map'
-import ServiceArea from './ServiceArea'
-import Portfolio from './Portfolio'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { Phone, Menu, X } from 'lucide-react'
+import { formatPhoneNumber } from '@/lib/format'
 
 interface ProfileLayoutProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  content: any
+  children: React.ReactNode
   businessName: string
-  whatsappLink: string
-  designPreset: DesignPreset
-  businessType: string
+  phone: string
+  city: string
+  whatsapp?: string
+  colors: {
+    primary: string
+    accent: string
+  }
 }
 
-export default function ProfileLayout({ content, businessName, whatsappLink, designPreset, businessType }: ProfileLayoutProps) {
-  const [menuOpen, setMenuOpen] = useState(false)
+export default function ProfileLayout({ children, businessName, phone, city, whatsapp, colors }: ProfileLayoutProps) {
+  const [scrolled, setScrolled] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
-    <>
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded">
-        Saltar al contenido
-      </a>
-
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200">
-        <div className="relative max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="#inicio" className="font-bold text-xl" style={{ color: content.colors.primary }}>
-            {businessName}
-          </a>
-
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden p-2"
-            aria-label="Toggle menu"
+    <div className="min-h-screen bg-white">
+      <header
+        className={`sticky top-0 z-50 transition-all duration-300 ${
+          scrolled ? 'backdrop-blur-md bg-white/80 shadow-sm' : 'bg-transparent'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link
+            href="#inicio"
+            className="text-xl font-bold tracking-tight text-slate-900 hover:opacity-80 transition-opacity"
           >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            {businessName}
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-8">
+            <Link
+              href="#inicio"
+              className="text-sm font-medium text-slate-900 hover:text-slate-600 transition-colors"
+            >
+              Inicio
+            </Link>
+            <Link
+              href="#servicios"
+              className="text-sm font-medium text-slate-900 hover:text-slate-600 transition-colors"
+            >
+              Servicios
+            </Link>
+            <Link
+              href="#contacto"
+              className="text-sm font-medium text-slate-900 hover:text-slate-600 transition-colors"
+            >
+              Contacto
+            </Link>
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+            aria-label="Menu"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
 
-          <nav className={`${menuOpen ? 'flex' : 'hidden'} md:flex absolute md:relative top-full left-0 right-0 md:top-auto bg-white md:bg-transparent flex-col md:flex-row gap-6 p-6 md:p-0 border-b md:border-0`} aria-label="Navegación principal">
-            <a href="#inicio" className="hover:opacity-70 transition">Inicio</a>
-            <a href="#servicios" className="hover:opacity-70 transition">Servicios</a>
-            <a href="#nosotros" className="hover:opacity-70 transition">Nosotros</a>
-            <a href="#contacto" className="hover:opacity-70 transition">Contacto</a>
-            <a
-              href={`tel:${content.contact.phone}`}
-              className="px-4 py-2 rounded-lg text-white font-medium transition hover:opacity-90"
-              style={{ background: content.colors.primary }}
+          <a
+            href={`tel:${phone}`}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm text-white transition-all hover:scale-105 hover:shadow-lg"
+            style={{ background: colors.primary }}
+          >
+            <Phone size={16} />
+            <span className="hidden sm:inline">Llamar ahora</span>
+          </a>
+        </div>
+      </header>
+
+      {/* Mobile Navigation */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-40 bg-white pt-20">
+          <nav className="flex flex-col p-6 space-y-4">
+            <Link
+              href="#inicio"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-lg font-medium text-slate-900 hover:text-slate-600 py-3 border-b border-slate-200"
             >
+              Inicio
+            </Link>
+            <Link
+              href="#servicios"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-lg font-medium text-slate-900 hover:text-slate-600 py-3 border-b border-slate-200"
+            >
+              Servicios
+            </Link>
+            <Link
+              href="#contacto"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-lg font-medium text-slate-900 hover:text-slate-600 py-3 border-b border-slate-200"
+            >
+              Contacto
+            </Link>
+            <a
+              href={`tel:${phone}`}
+              onClick={() => setMobileMenuOpen(false)}
+              className="mt-4 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold text-white"
+              style={{ background: colors.primary }}
+            >
+              <Phone size={20} />
               Llamar ahora
             </a>
           </nav>
         </div>
-      </header>
+      )}
 
-      <main id="main" role="main" className={`${designPreset.fontFamily}`}>
-        <Hero data={content.hero} colors={content.colors} whatsapp={whatsappLink} designPreset={designPreset} />
-        <Services data={content.services} colors={content.colors} designPreset={designPreset} />
-        <Trust data={content.trust} colors={content.colors} designPreset={designPreset} />
-        <Testimonials data={content.testimonials} />
+      <main>{children}</main>
 
-        {businessType === 'local' && (
-          <Map businessName={businessName} city={content.hero.city} />
-        )}
+      <footer className="bg-slate-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div>
+              <h3 className="font-bold text-lg mb-4">{businessName}</h3>
+              <div className="space-y-2 text-slate-400 text-sm">
+                <p>{city}</p>
+                <a href={`tel:${phone}`} className="block hover:text-white transition-colors">
+                  Tel: {formatPhoneNumber(phone)}
+                </a>
+                {whatsapp && (
+                  <a href={whatsapp} className="block hover:text-white transition-colors">
+                    WhatsApp
+                  </a>
+                )}
+              </div>
+            </div>
 
-        {businessType === 'mobile_service' && (
-          <ServiceArea city={content.hero.city} />
-        )}
+            <div>
+              <h3 className="font-bold text-lg mb-4">Navegación</h3>
+              <div className="space-y-2 text-slate-400 text-sm">
+                <a href="#inicio" className="block hover:text-white transition-colors">Inicio</a>
+                <a href="#servicios" className="block hover:text-white transition-colors">Servicios</a>
+                <a href="#contacto" className="block hover:text-white transition-colors">Contacto</a>
+              </div>
+            </div>
 
-        {businessType === 'portfolio' && (
-          <Portfolio
-            businessName={businessName}
-            colors={content.colors}
-            designPreset={designPreset}
-          />
-        )}
+            <div>
+              <h3 className="font-bold text-lg mb-4">Web profesional</h3>
+              <p className="text-slate-400 text-sm">
+                Creada con tecnología de última generación para garantizar velocidad, seguridad y presencia online profesional.
+              </p>
+            </div>
+          </div>
 
-        <Contact data={content.contact} businessName={businessName} colors={content.colors} designPreset={designPreset} />
-      </main>
-
-      <footer className="bg-gray-900 text-gray-300 py-8 px-6">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="font-semibold text-white mb-1">{businessName} - {content.hero.city}</div>
-          <div className="text-sm mb-1">Teléfono: {content.contact.phone}</div>
-          <div className="text-xs text-gray-500 mt-4">© {new Date().getFullYear()} {businessName}. Todos los derechos reservados. | Powered by mivia.es</div>
+          <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+            <div>
+              © {new Date().getFullYear()} {businessName}. Todos los derechos reservados. | Powered by{' '}
+              <a href="https://mivia.es" className="text-slate-400 hover:text-white transition-colors">
+                mivia.es
+              </a>
+            </div>
+            <div className="flex flex-wrap justify-center gap-6 text-xs text-slate-400">
+              <a href="https://mivia.es/aviso-legal" className="hover:text-white transition-colors">Aviso Legal</a>
+              <a href="https://mivia.es/terminos-y-condiciones" className="hover:text-white transition-colors">Términos y Condiciones</a>
+              <a href="https://mivia.es/politica-de-privacidad" className="hover:text-white transition-colors">Política de Privacidad</a>
+              <a href="mailto:privacidad@mivia.es" className="hover:text-white transition-colors">privacidad@mivia.es</a>
+            </div>
+          </div>
         </div>
       </footer>
-
-      <a
-        href={whatsappLink}
-        className="fixed bottom-6 right-6 w-16 h-16 rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform z-50 animate-pulse"
-        style={{ background: '#25D366' }}
-        aria-label="Contactar por WhatsApp"
-      >
-        <MessageCircle size={28} />
-      </a>
-    </>
+    </div>
   )
 }

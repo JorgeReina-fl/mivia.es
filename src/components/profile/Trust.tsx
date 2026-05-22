@@ -1,38 +1,67 @@
 'use client'
-import { Check } from 'lucide-react'
-import { DesignPreset } from '@/lib/design-presets'
+import AnimatedSection from '@/components/AnimatedSection'
 
 interface TrustProps {
   data: {
-    badges: Array<{ number: string; label: string }>
+    badges: Array<{
+      number: string
+      label: string
+    }>
     reasons: string[]
   }
-  colors: { primary: string; surface: string }
-  designPreset: DesignPreset
+  colors: {
+    primary: string
+    accent: string
+  }
 }
 
-export default function Trust({ data, colors, designPreset }: TrustProps) {
+export default function Trust({ data, colors }: TrustProps) {
   return (
-    <section id="nosotros" className="py-16 px-6" style={{ background: colors.surface }}>
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-4xl font-bold text-center mb-12 text-gray-900">¿Por qué elegirnos?</h2>
+    <section className="py-20 px-6 bg-gradient-to-b from-white to-slate-50">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+            ¿Por qué elegirnos?
+          </h2>
+          <div className="w-20 h-1.5 mx-auto rounded-full" style={{ background: colors.accent }} />
+        </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+        <AnimatedSection delay={0.1}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-16">
           {data.badges.map((badge, i) => (
-            <div key={i} className={`bg-white p-6 text-center shadow-sm ${designPreset.corners}`}>
-              <div className="text-4xl font-bold mb-2" style={{ color: colors.primary }}>{badge.number}</div>
-              <div className="text-sm text-gray-600">{badge.label}</div>
+            <div key={i} className="text-center">
+              <div
+                className="text-5xl md:text-6xl font-black tracking-tighter mb-2"
+                style={{ color: colors.primary }}
+              >
+                {badge.number}
+              </div>
+              <div className="text-sm md:text-base text-slate-600 font-medium">
+                {badge.label}
+              </div>
             </div>
           ))}
         </div>
+        </AnimatedSection>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {data.reasons.map((reason, i) => (
             <div key={i} className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Check size={16} className="text-green-600" />
+              <div
+                className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5"
+                style={{ background: colors.primary + '20' }}
+              >
+                <svg
+                  className="w-4 h-4"
+                  style={{ color: colors.primary }}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
               </div>
-              <span className="text-gray-700">{reason}</span>
+              <span className="text-slate-700 leading-relaxed">{reason}</span>
             </div>
           ))}
         </div>
